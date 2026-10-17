@@ -49,6 +49,83 @@
 @media(max-width:760px){.intro-aside{display:none}.hero-copy h1{font-size:clamp(47px,9.4vw,69px)}.veil-brain{width:100%;max-height:63%}.veil-eyebrow{font-size:8px;letter-spacing:.11em;margin:10px 0 -12px}.veil-copy{margin-top:-10px;padding:0 20px}.veil-copy strong{font-size:19px}.veil-copy span{font-size:10px}.veil-scroll{font-size:8px;letter-spacing:.1em;bottom:17px}}
 @media(max-width:480px){.hero-copy h1{font-size:clamp(43px,10.7vw,54px)}.veil-brain{max-height:54%}.veil-copy{margin-top:0}.veil-scroll{letter-spacing:.03em}}
 @media(prefers-reduced-motion:reduce){:root{--cortex-reveal:1}.intro-brain,.veil-brain,.veil-scroll span{animation:none!important}.cortex-veil{display:none!important}#architecture{opacity:1}}
+
+/* V1.2 / Living systems: projection remains after the opening dissolves. */
+.diagram-wrap{--diagram-base-opacity:calc(.18 + var(--cortex-reveal) * .82);background:radial-gradient(ellipse at 53% 48%,rgba(34,87,88,.22),transparent 72%)}
+.brain-projection{position:absolute;left:50%;top:50%;width:65%;max-width:910px;height:94%;object-fit:contain;transform:translate(-50%,-50%);z-index:0;pointer-events:none;opacity:calc(.03 + var(--cortex-reveal) * .16);filter:blur(.6px) drop-shadow(0 0 52px rgba(83,182,167,.14));animation:projection-breath 11s ease-in-out infinite}
+.diagram-wrap:before{z-index:0}#architecture{position:relative;z-index:1}
+.cortex-veil{background:radial-gradient(ellipse at center,rgba(10,28,41,.95),rgba(11,23,35,.96) 56%,rgba(11,23,35,.92) 100%)}
+.toolbar-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+.scenario-label{font:700 9px ui-monospace,Menlo,monospace;letter-spacing:.16em;color:#76999d}
+.scenario-select{color:#d4e9e5;background:#102631;border:1px solid #49646a;border-radius:6px;padding:9px 11px;font:11px ui-monospace,Menlo,monospace;max-width:180px;min-height:37px;cursor:pointer}
+.scenario-select:focus-visible{outline:2px solid var(--mint);outline-offset:3px}
+.toolbar-trigger{white-space:nowrap}
+.toolbar-meta{flex-basis:100%;justify-content:flex-end}
+.node-spark{fill:#80d8cd;opacity:.32;animation:node-twinkle 3.6s ease-in-out infinite}
+.node-circle{animation:node-breathe 4.4s ease-in-out infinite}
+.node-meter{fill:#69cdbf;opacity:.08;transform:scaleX(.06);transform-origin:center;transition:opacity .28s,transform .5s}
+.node.is-active .node-meter,.node.is-success .node-meter{opacity:.95;transform:scaleX(1)}
+.node.is-retrying .node-meter{opacity:.97;transform:scaleX(.75);fill:#edb66f}
+.node.is-retrying .node-bg{stroke:#e4ae68;fill:#3a332b}
+.node.is-retrying .node-circle,.node.is-retrying .node-spark{fill:#edc485;opacity:1}
+.node.is-retrying .node-halo{fill:#ffcd89;opacity:.20}
+.node.is-error .node-meter{fill:#f49195;opacity:1;transform:scaleX(1)}
+.node.is-error .node-bg{stroke:#f49a9a;fill:#3f2734}
+.node.is-error .node-circle,.node.is-error .node-spark{fill:#f8a2a4;opacity:1}
+.node.is-error .node-halo{fill:#f09898;opacity:.25}
+.node.is-observer .node-bg{fill:#152432;stroke-dasharray:2.5 3.5}
+.node.is-observer .node-title{fill:#bad4d5}
+.node.is-active .node-spark,.node.is-success .node-spark{fill:#c8ffe7;opacity:1}
+.wire-ambient{stroke-dasharray:3 10;opacity:.12}
+.packet-error .packet-core{fill:#ff9899}
+.packet-error .packet-outer{fill:#ff888b}
+.packet-error .packet-tag{fill:#ffd4ce}
+.packet-retry .packet-core{fill:#edc485}
+.packet-retry .packet-outer{fill:#eec17e}
+.packet-retry .packet-tag{fill:#ffdea6}
+.system-dash{grid-template-columns:repeat(7,minmax(0,1fr)) minmax(165px,1.55fr)}
+.dash-readout,.dash-result{padding:20px 14px;min-height:94px}
+.dash-readout strong{font-size:26px}
+.dash-result.error .result-led{background:#ee989b;border-color:#ee989b;box-shadow:0 0 12px rgba(238,152,155,.52)}
+.dash-result.error strong{color:#f5b5b2}
+.activity-panel{padding:17px 27px 21px;border-top:1px solid var(--hair);background:linear-gradient(180deg,rgba(13,29,43,.62),rgba(10,23,34,.45));}
+.activity-heading{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:14px}
+.activity-title{font:700 10px ui-monospace,Menlo,monospace;color:#a5e4ce;letter-spacing:.17em}
+.feed-dot{display:inline-block;margin-left:5px;vertical-align:middle;width:5px;height:5px;border-radius:50%;background:#92dfc4;animation:breathe 3.6s infinite}
+.activity-legend{font:9px ui-monospace,Menlo,monospace;letter-spacing:.09em;color:#829da1;white-space:nowrap}
+.activity-legend b{margin-left:8px;font-size:12px}
+.legend-ok{color:#9bdcb6}.legend-retry{color:#eec587}.legend-error{color:#f49a9e}
+.event-feed{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 30px}
+.event-item{display:flex;align-items:baseline;gap:12px;font:11px/1.5 ui-monospace,Menlo,monospace;color:#9eb5b6;min-width:0}
+.event-item span:last-child{min-width:0}
+.event-code{flex:0 0 55px;color:#9edfc1;font-weight:700}
+.event-error .event-code{color:#f49a9e}.event-retry .event-code{color:#eec587}.event-scale .event-code{color:#7fbdd9}
+@keyframes node-twinkle{0%,100%{opacity:.11;r:1.7}40%{opacity:.48;r:2.4}55%{opacity:.22}}
+@keyframes node-breathe{0%,100%{opacity:.48}50%{opacity:.85}}
+@keyframes projection-breath{0%,100%{filter:blur(.6px) drop-shadow(0 0 38px rgba(83,182,167,.10))}50%{filter:blur(.6px) drop-shadow(0 0 56px rgba(83,182,167,.19))}}
+@media(max-width:1250px){.system-toolbar{align-items:flex-start;flex-wrap:wrap}.toolbar-right{justify-content:flex-start}.toolbar-meta{justify-content:flex-start}.system-dash{grid-template-columns:repeat(4,minmax(0,1fr))}.dash-readout:nth-child(n),.dash-result{border-top:0;border-right:1px solid var(--hair)}.dash-readout:nth-child(n+5),.dash-result{border-top:1px solid var(--hair)}.dash-readout:nth-child(4),.dash-result{border-right:0}.dash-result{grid-column:auto}.dash-readout strong{font-size:27px}}
+@media(max-width:760px){
+ .diagram-wrap{--diagram-base-opacity:calc(.19 + var(--cortex-reveal) * .81)}
+ .brain-projection{width:128%;height:73%;opacity:calc(.02 + var(--cortex-reveal) * .15)}
+ .toolbar-right{flex-direction:row;align-items:center;gap:8px;justify-content:flex-start}
+ .scenario-label{width:100%}.scenario-select{flex:1;max-width:none;font-size:10px}
+ .toolbar-meta{width:100%}
+ .diagram-corner-label{bottom:11px}
+ .activity-panel{padding:17px 16px}
+ .event-feed{grid-template-columns:1fr;gap:6px}
+ .activity-heading{align-items:flex-start;flex-direction:column;gap:7px}
+ .activity-legend{font-size:8px}
+ .system-dash{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .dash-readout:nth-child(n),.dash-result{border-right:1px solid var(--hair);border-top:1px solid var(--hair)}
+ .dash-readout:nth-child(odd){border-right:1px solid var(--hair)}
+ .dash-readout:nth-child(even),.dash-result{border-right:0}
+ .dash-readout:nth-child(-n+2){border-top:0}
+ .dash-result{grid-column:auto;padding:12px 9px}
+ .dash-result strong{font-size:10px}
+ .node-title{font-size:13px}
+ .node-detail{font-size:9.8px}
+}
+@media(prefers-reduced-motion:reduce){.brain-projection,.node-circle,.node-spark,.feed-dot{animation:none!important}}
 </style>
   
 </head>
@@ -75,7 +152,7 @@
             <button class="primary-action" type="button" id="send-request"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10h13m-5-5 5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg> Send a request</button>
             <button class="secondary-action" type="button" id="send-burst">Try a 5× burst <span aria-hidden="true">↗</span></button>
           </div>
-          <p class="action-hint"><span class="hint-symbol" aria-hidden="true">↳</span> Click repeatedly. Watch the architecture adapt.</p>
+          <p class="action-hint"><span class="hint-symbol" aria-hidden="true">↳</span> Click repeatedly or try a mixed burst — retries and failures included.</p>
         </div>
         <div class="intro-aside" aria-hidden="true">
           <div class="intro-brain-glow"></div>
@@ -86,12 +163,13 @@
 
       <div class="system-shell" aria-labelledby="diagram-title">
         <div class="system-toolbar">
-          <div class="toolbar-title"><span class="toolbar-tag">01 / INTERACTIVE SYSTEM</span><h2 id="diagram-title">The living architecture <span class="title-beta">V1.1</span></h2></div>
-          <div class="toolbar-right"><button class="toolbar-trigger" id="send-inline" type="button">↗ Run a signal</button><div class="toolbar-meta"><span class="system-state"><span class="heartbeat" aria-hidden="true"></span><span id="system-status">SYSTEM IDLE</span></span><span class="toolbar-divider"></span><span>SIMULATED ENVIRONMENT</span></div></div>
+          <div class="toolbar-title"><span class="toolbar-tag">01 / INTERACTIVE SYSTEM</span><h2 id="diagram-title">The living architecture <span class="title-beta">V1.2</span></h2></div>
+          <div class="toolbar-right"><label class="scenario-label" for="scenario-mode">SCENARIO</label><select id="scenario-mode" class="scenario-select" aria-label="Choose a request scenario"><option value="healthy">Healthy / 200</option><option value="blocked">Security block / 403</option><option value="throttled">Rate limited / 429</option><option value="recovered">Retry & recover / 200</option><option value="outage">Service failure / 503</option></select><button class="toolbar-trigger" id="send-inline" type="button">↗ Run scenario</button><div class="toolbar-meta"><span class="system-state"><span class="heartbeat" aria-hidden="true"></span><span id="system-status">SYSTEM IDLE</span></span><span class="toolbar-divider"></span><span>SIMULATED ENVIRONMENT</span></div></div>
         </div>
 
         <div class="diagram-wrap">
           <div class="diagram-grain" aria-hidden="true"></div>
+          <img class="brain-projection" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDI0IDYwMCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJBYnN0cmFjdCBjbG91ZCBicmFpbiBmb3JtZWQgZnJvbSBuZXVyYWwgcGF0aHdheXMiPgo8ZGVmcz4KIDxyYWRpYWxHcmFkaWVudCBpZD0iY29ydGV4LWF1cmEiPjxzdG9wIHN0b3AtY29sb3I9IiM2MmJlYTkiIHN0b3Atb3BhY2l0eT0iLjE5Ii8+PHN0b3Agb2Zmc2V0PSIuNTgiIHN0b3AtY29sb3I9IiMzYTgwOTciIHN0b3Atb3BhY2l0eT0iLjA0NSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzNhODA5NyIgc3RvcC1vcGFjaXR5PSIwIi8+PC9yYWRpYWxHcmFkaWVudD4KIDxsaW5lYXJHcmFkaWVudCBpZD0ibmV1cm9uIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+PHN0b3Agc3RvcC1jb2xvcj0iIzUzOWRhMSIgc3RvcC1vcGFjaXR5PSIuMjQiLz48c3RvcCBvZmZzZXQ9Ii41NSIgc3RvcC1jb2xvcj0iI2IwZWFkOSIgc3RvcC1vcGFjaXR5PSIuNzgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0YThiOWUiIHN0b3Atb3BhY2l0eT0iLjI1Ii8+PC9saW5lYXJHcmFkaWVudD4KIDxsaW5lYXJHcmFkaWVudCBpZD0iYm91bmRhcnkiIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBzdG9wLWNvbG9yPSIjOWJkYmM5IiBzdG9wLW9wYWNpdHk9Ii41NSIvPjxzdG9wIG9mZnNldD0iLjciIHN0b3AtY29sb3I9IiM2MDlkYWEiIHN0b3Atb3BhY2l0eT0iLjIiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM5ZWQ5Y2QiIHN0b3Atb3BhY2l0eT0iLjQiLz48L2xpbmVhckdyYWRpZW50PgogPGZpbHRlciBpZD0iY29ydGV4LWJsdXIiIHg9Ii0xMDAlIiB5PSItMTAwJSIgd2lkdGg9IjMwMCUiIGhlaWdodD0iMzAwJSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iOSIvPjwvZmlsdGVyPgo8L2RlZnM+CjxlbGxpcHNlIGN4PSI1MTIiIGN5PSIzMDMiIHJ4PSI0MDUiIHJ5PSIyNjUiIGZpbGw9InVybCgjY29ydGV4LWF1cmEpIi8+CjxnIHN0cm9rZT0iIzcyYzZiOSIgZmlsbD0ibm9uZSIgb3BhY2l0eT0iLjE2Ij48ZWxsaXBzZSBjeD0iNTEyIiBjeT0iMjk4IiByeD0iNDAwIiByeT0iMjQ0IiBzdHJva2UtZGFzaGFycmF5PSIyIDE0Ii8+PGVsbGlwc2UgY3g9IjUxMiIgY3k9IjI5OCIgcng9IjM1MCIgcnk9IjIxOCIgc3Ryb2tlLWRhc2hhcnJheT0iMSAxNiIvPjxwYXRoIGQ9Ik0xMDggMjk5aDgwOE01MTIgMTZ2NTY4IiBzdHJva2UtZGFzaGFycmF5PSIyIDE1IiBvcGFjaXR5PSIuMzUiLz48L2c+CjxnIGNsYXNzPSJjb3J0ZXgtb3JnYW4iIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgZmlsbD0ibm9uZSI+CiA8ZyBpZD0ibGVmdC1zaWRlIj4KICA8cGF0aCBjbGFzcz0iY29ydGV4LW91dGxpbmUiIGQ9Ik01MDkgMTMyIEM0ODMgODIgNDI1IDcwIDM5MSA5NiBDMzYxIDcwIDMwNyA5MiAyOTUgMTMwIEMyNTAgMTIzIDIyMCAxNTggMjI5IDE5NSBDMTg2IDIwOCAxNzEgMjUyIDE5MCAyOTEgQzE3MCAzMjkgMTkzIDM3NCAyMjcgMzg1IEMyMjMgNDM5IDI3MSA0NzMgMzIwIDQ2NCBDMzQxIDUxMiA0MDMgNTE2IDQ0MSA0ODYgQzQ4MiA0OTEgNTEzIDQ1NCA1MTIgNDExIiBzdHJva2U9InVybCgjYm91bmRhcnkpIiBzdHJva2Utd2lkdGg9IjIuMyIvPgogIDxwYXRoIGNsYXNzPSJjb3J0ZXgtYnJhbmNoIiBkPSJNNDk0IDEzMUM0NTkgMTQ1IDQ0OSAxMjAgNDIwIDEyMFMzNTQgMTM3IDM2MCAxNjdRMzYyIDE4OSAzMzkgMjAxVDMwOCAyMzYiLz4KICA8cGF0aCBjbGFzcz0iY29ydGV4LWJyYW5jaCIgZD0iTTM5MCA5OSBRNDA1IDEzMSAzOTEgMTU2IFQzNzQgMTk5IFEzNDkgMjA1IDMzOCAxOTEiLz4KICA8cGF0aCBjbGFzcz0iY29ydGV4LWJyYW5jaCIgZD0iTTMwNCAxMzUgQzMyNiAxNTMgMjk2IDE2OCAyODAgMTcwUTI0NiAxNzYgMjYxIDIxNVQyODIgMjYyIi8+CiAgPHBhdGggY2xhc3M9ImNvcnRleC1icmFuY2giIGQ9Ik0yMzAgMjAwIEMyNTcgMjE0IDIyMiAyNDggMjQ1IDI2NFEyNTkgMjc0IDI4MyAyNTgiLz4KICA8cGF0aCBjbGFzcz0iY29ydGV4LWJyYW5jaCIgZD0iTTE5MSAyOTMgUTIzMCAyODQgMjM4IDMyMFQyNzQgMzQyUTMwNiAzNDcgMzE3IDMyMCIvPgogIDxwYXRoIGNsYXNzPSJjb3J0ZXgtYnJhbmNoIiBkPSJNMjMxIDM4NSBRMjczIDM3NCAyNzMgNDEwVDMwNCA0NDZRMzI0IDQzMCAzMzcgNDQ1Ii8+CiAgPHBhdGggY2xhc3M9ImNvcnRleC1icmFuY2giIGQ9Ik0zMjEgNDY1UTM1NiA0MzUgMzY2IDQ2M1Q0MTggNDg1Ii8+CiAgPHBhdGggY2xhc3M9ImNvcnRleC1icmFuY2giIGQ9Ik01MDIgNDA5IFE0NzkgMzgzIDQ1NiA0MDNUNDE3IDQyN1EzODggNDMzIDM5NCA0NjciLz4KICA8cGF0aCBjbGFzcz0iY29ydGV4LWJyYW5jaCIgZD0iTTUwNiAzMjYgUTQ3NCAzNDcgNDQwIDMyNiBUMzczIDMzMlEzNTIgMzQxIDM2NiAzNjYiLz4KICA8cGF0aCBjbGFzcz0iY29ydGV4LWJyYW5jaCIgZD0iTTUwMCAyNDIgQzQ2NSAyMjMgNDU1IDI2NiA0MjIgMjUyVDM3MCAyNzBRMzQ4IDMwMiAzODAgMzE4Ii8+CiAgPHBhdGggY2xhc3M9ImNvcnRleC1icmFuY2giIGQ9Ik0zMjUgMjY0UTM1NiAyNDMgMzYxIDIyMVQzOTcgMTkyUTQyMiAxODYgNDQwIDIwMyIvPgogIDxwYXRoIGNsYXNzPSJjb3J0ZXgtYnJhbmNoIiBkPSJNMjg3IDM1MiBRMzA4IDM3MiAzNDIgMzYwIFQ0MDIgMzg0UTQyMSAzOTMgNDM1IDM3NSIvPgogIDxwYXRoIGNsYXNzPSJjb3J0ZXgtYnJhbmNoIiBkPSJNMjkxIDIyN1EzMTkgMjEwIDMzMyAyMjNNMjkzIDI5NlEzMTIgMjc4IDMzMSAyOTNNNDM3IDE0N1E0NTkgMTYzIDQ1NiAxODdNNDI5IDI4NVE0NTAgMjk4IDQ2NiAyOTMiLz4KICA8cGF0aCBjbGFzcz0iY29ydGV4LXRyYWNlIiBkPSJNMjgzIDM1MiBRMzIyIDMyMSAzNjQgMzMzIFQ0NDAgMzI2IFQ1MDAgMzI1Ii8+CiAgPHBhdGggY2xhc3M9ImNvcnRleC10cmFjZSIgZD0iTTI2MCAyMTUgUTMwOCAyMzAgMzU3IDIxMSBUNDUxIDIwMSBUNTAyIDI0MSIvPgogIDxwYXRoIGNsYXNzPSJjb3J0ZXgtdHJhY2UiIGQ9Ik0zMDMgNDQ3IFEzNjAgNDMwIDM5OSA0NDkgVDQ5MSA0MTkiLz4KICA8ZyBjbGFzcz0iY29ydGV4LWRvdHMiIGZpbGw9IiNhN2U4ZDUiIHN0cm9rZT0ibm9uZSI+PGNpcmNsZSBjeD0iMjgzIiBjeT0iMzUyIiByPSIzIi8+PGNpcmNsZSBjeD0iMzY0IiBjeT0iMzMzIiByPSIyIi8+PGNpcmNsZSBjeD0iNDQwIiBjeT0iMzI2IiByPSIyLjUiLz48Y2lyY2xlIGN4PSIyNjAiIGN5PSIyMTUiIHI9IjIiLz48Y2lyY2xlIGN4PSIzNTciIGN5PSIyMTEiIHI9IjMiLz48Y2lyY2xlIGN4PSI0NTEiIGN5PSIyMDEiIHI9IjIiLz48Y2lyY2xlIGN4PSIzMDMiIGN5PSI0NDciIHI9IjIuNSIvPjxjaXJjbGUgY3g9IjM5OSIgY3k9IjQ0OSIgcj0iMiIvPjwvZz4KIDwvZz4KIDx1c2UgaHJlZj0iI2xlZnQtc2lkZSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTAyNCAwKSBzY2FsZSgtMSAxKSIvPgogPHBhdGggY2xhc3M9ImNvcnRleC1zdGVtIiBkPSJNNTEyIDE0MiBRNDkzIDE5MSA1MTIgMjMzVDUxMiAzMjJRNDk5IDM3NSA1MTIgNDA5IiBzdHJva2U9IiM5YmRjY2EiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWRhc2hhcnJheT0iMyAxMiIgb3BhY2l0eT0iLjU3Ii8+CiA8cGF0aCBjbGFzcz0iY29ydGV4LXN0ZW0iIGQ9Ik01MTIgNDEyQzQ5OCA0NTQgNTAzIDQ4MyA1MTMgNTE4QzUyNCA0ODIgNTI3IDQ0NiA1MTIgNDEyIiBzdHJva2U9IiM3MGI3YWQiIHN0cm9rZS13aWR0aD0iMS41IiBvcGFjaXR5PSIuMzMiLz4KPC9nPgo8ZyBjbGFzcz0iZXh0ZXJuYWwtc3luYXBzZXMiIGZpbGw9IiNhMmU4ZDEiIHN0cm9rZT0iIzVmOWVhNiIgc3Ryb2tlLXdpZHRoPSIuOCIgb3BhY2l0eT0iLjQ1Ij4KIDxwYXRoIGQ9Ik0xMzUgMTc0TDIxNSAyMzBNMTQ0IDM5OEwyMzIgMzgyTTgyMSAxNzRMODk5IDE0Mk04MTEgNDE0TDg4NiA0NDgiIGZpbGw9Im5vbmUiIHN0cm9rZS1kYXNoYXJyYXk9IjIgOSIvPgogPGNpcmNsZSBjeD0iMTM1IiBjeT0iMTc0IiByPSIyLjQiLz48Y2lyY2xlIGN4PSIxNDQiIGN5PSIzOTgiIHI9IjIuNCIvPjxjaXJjbGUgY3g9Ijg5OSIgY3k9IjE0MiIgcj0iMi40Ii8+PGNpcmNsZSBjeD0iODg2IiBjeT0iNDQ4IiByPSIyLjQiLz4KPC9nPgo8c3R5bGU+Ci5jb3J0ZXgtb3JnYW57dHJhbnNmb3JtLW9yaWdpbjo1MTJweCAyOTlweDthbmltYXRpb246dGhpbmsgN3MgZWFzZS1pbi1vdXQgaW5maW5pdGV9Ci5jb3J0ZXgtYnJhbmNoe3N0cm9rZTp1cmwoI25ldXJvbik7c3Ryb2tlLXdpZHRoOjEuNjU7b3BhY2l0eTouNjd9Ci5jb3J0ZXgtdHJhY2V7c3Ryb2tlOiNhM2ViZDI7c3Ryb2tlLXdpZHRoOjI7b3BhY2l0eTouNDQ7c3Ryb2tlLWRhc2hhcnJheTozIDE1O2FuaW1hdGlvbjpmbG93IDE0cyBsaW5lYXIgaW5maW5pdGV9Ci5jb3J0ZXgtZG90c3tvcGFjaXR5Oi42NTthbmltYXRpb246YmxpbmsgNXMgZWFzZS1pbi1vdXQgaW5maW5pdGV9Ci5jb3J0ZXgtb3V0bGluZXthbmltYXRpb246YmxpbmsgOXMgZWFzZS1pbi1vdXQgaW5maW5pdGV9CkBrZXlmcmFtZXMgdGhpbmt7MCUsMTAwJXt0cmFuc2Zvcm06c2NhbGUoMSl9NTAle3RyYW5zZm9ybTpzY2FsZSgxLjAxMil9fQpAa2V5ZnJhbWVzIGZsb3d7dG97c3Ryb2tlLWRhc2hvZmZzZXQ6LTE4MH19CkBrZXlmcmFtZXMgYmxpbmt7MCUsMTAwJXtvcGFjaXR5Oi4zNX01MCV7b3BhY2l0eTouODJ9fQpAbWVkaWEocHJlZmVycy1yZWR1Y2VkLW1vdGlvbjpyZWR1Y2Upeyp7YW5pbWF0aW9uOm5vbmUhaW1wb3J0YW50fX0KPC9zdHlsZT4KPC9zdmc+" width="670" height="393" alt="" aria-hidden="true">
           <div class="cortex-veil" id="cortex-veil" aria-hidden="true">
             <div class="veil-glow"></div>
             <span class="veil-eyebrow">THE INTELLIGENCE BENEATH THE INTERFACE</span>
@@ -99,7 +177,7 @@
             <div class="veil-copy"><strong>A system of decisions.</strong><span>A thousand quiet connections. One response.</span></div>
             <div class="veil-scroll">SCROLL TO REVEAL THE ARCHITECTURE <span>↓</span></div>
           </div>
-          <svg id="architecture" viewBox="0 0 1230 610" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Interactive diagram of a cloud transaction passing through web security, load balancing, an API gateway, application replicas, a message queue, worker, sharded databases, WebSocket and success." xmlns="http://www.w3.org/2000/svg">
+          <svg id="architecture" viewBox="0 0 1230 610" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Interactive diagram of a cloud transaction passing through web security, rate limiting, load balancing, API gateway, identity checks, API replicas, cache, messaging, retries, dead-letter queues, sharded databases, WebSocket, observability and success or failure." xmlns="http://www.w3.org/2000/svg">
             <defs>
               <radialGradient id="ambient-glow"><stop stop-color="#387e8b" stop-opacity=".24"/><stop offset="1" stop-color="#387e8b" stop-opacity="0"/></radialGradient>
               <filter id="packet-glow" x="-250%" y="-250%" width="600%" height="600%"><feGaussianBlur stdDeviation="5"/></filter>
@@ -121,11 +199,14 @@
           <div class="dash-readout"><span class="dash-label">COMPLETED</span><strong id="metric-completed">00</strong></div>
           <div class="dash-readout"><span class="dash-label">IN FLIGHT</span><strong id="metric-flight">00</strong></div>
           <div class="dash-readout"><span class="dash-label">QUEUE DEPTH</span><strong id="metric-queue">00</strong></div>
+          <div class="dash-readout"><span class="dash-label">FAILED</span><strong id="metric-failed">00</strong></div>
+          <div class="dash-readout"><span class="dash-label">RETRIES</span><strong id="metric-retried">00</strong></div>
           <div class="dash-readout replicas"><span class="dash-label">API REPLICAS</span><strong id="metric-replicas">01 <small>/ 03</small></strong></div>
           <div class="dash-result"><span class="dash-label">LAST RESULT</span><strong id="metric-result"><i class="result-led" aria-hidden="true"></i> Waiting for a request</strong></div>
         </div>
+        <div class="activity-panel"><div class="activity-heading"><span class="activity-title">EVENT STREAM <span class="feed-dot" aria-hidden="true"></span></span><span class="activity-legend"><b class="legend-ok">●</b> SUCCESS <b class="legend-retry">●</b> RETRY <b class="legend-error">●</b> ERROR</span></div><ol id="event-feed" class="event-feed" aria-label="Recent simulated system events"><li class="event-item event-idle"><span class="event-code">READY</span><span>Waiting for a signal. Try burst mode to see failures and recovery.</span></li></ol></div>
       </div>
-      <p class="simulation-note"><span class="note-icon" aria-hidden="true">ⓘ</span> An interactive, browser-side architecture simulation — not a connected production cloud. Requests are simulated locally to illustrate system behaviour.</p>
+      <p class="simulation-note"><span class="note-icon" aria-hidden="true">ⓘ</span> An interactive, browser-side architecture simulation — not a connected production cloud. Requests, error codes, metrics and scaling are illustrative and computed entirely in your browser. No production systems or real traffic are involved.</p>
       <div class="trace-line" aria-live="polite" aria-atomic="true"><span class="trace-prefix">TRACE /</span> <span id="trace-message">Standing by. Send a request to light up the system.</span></div>
     </section>
 
@@ -143,181 +224,161 @@
     <section class="contact-section" id="contact" aria-labelledby="contact-title"><span class="section-kicker">04 / THE NEXT CONNECTION</span><h2 id="contact-title">Every great system<br>starts with a <em>connection.</em></h2><p>My story is still unfolding. Thanks for being here.</p><a class="contact-link" href="mailto:hello@afroz.co.uk">Say hello <span aria-hidden="true">↗</span></a><p class="contact-disclaimer">Contact address is a placeholder — update it before publishing.</p></section>
   </main>
   <footer class="site-footer"><span class="wordmark">afroz<span>.</span></span><span>Built with intention · Static by design</span><a href="#top">Back to the top ↑</a></footer>
-<script>/* Cloud Cortex V1 — pure browser-side architecture simulation. No network requests. */
+<script>/* Cloud Cortex V1.2 — deterministic, browser-only system story. No network calls. */
 (() => {
   'use strict';
   const NS = 'http://www.w3.org/2000/svg';
-  const svg = document.getElementById('architecture');
+  const svg = document.querySelector('#architecture');
   if (!svg) return;
-  const $ = (id) => document.getElementById(id);
-  const layers = {
-    brain: $('brain-backdrop'), zones: $('zone-labels'), wires: $('wire-layer'),
-    nodes: $('node-layer'), packets: $('packet-layer')
-  };
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const mobileMedia = window.matchMedia('(max-width: 760px)');
-  // Scroll reveal is intentionally independent of the packet animation.
-  // Keeping it linear makes reversing the scroll feel natural.
-  const diagramWrap = document.querySelector('.diagram-wrap');
+  const $ = id => document.getElementById(id);
+  const layers = {brain:$('brain-backdrop'),zones:$('zone-labels'),wires:$('wire-layer'),nodes:$('node-layer'),packets:$('packet-layer')};
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  const mobileMedia = matchMedia('(max-width: 760px)');
+  const wrap = document.querySelector('.diagram-wrap');
   let revealQueued = false;
   let revealForTransaction = false;
-  function updateCortexReveal(){
+  function updateReveal(){
     revealQueued = false;
-    const distance = Math.min(window.innerHeight * 0.78, 590);
-    const progress = reducedMotion.matches ? 1 : Math.min(1, Math.max(0, window.scrollY / Math.max(1, distance)));
-    document.documentElement.style.setProperty('--cortex-reveal', String(revealForTransaction ? 1 : progress));
-    if (diagramWrap) diagramWrap.setAttribute('data-revealed', progress >= .98 || revealForTransaction ? 'true' : 'false');
+    const distance=Math.min(window.innerHeight*.78,590);
+    const progress=reducedMotion.matches?1:Math.min(1,Math.max(0,window.scrollY/Math.max(1,distance)));
+    const reveal=revealForTransaction?1:progress;
+    document.documentElement.style.setProperty('--cortex-reveal',String(reveal));
+    wrap.dataset.revealed=reveal>=.98?'true':'false';
   }
-  function scheduleCortexReveal(){
-    if (revealQueued) return;
-    revealQueued = true;
-    requestAnimationFrame(updateCortexReveal);
-  }
-  function openCortex(){
-    revealForTransaction = true;
-    updateCortexReveal();
-  }
-  window.addEventListener('scroll', scheduleCortexReveal, {passive:true});
-  window.addEventListener('resize', scheduleCortexReveal, {passive:true});
-  reducedMotion.addEventListener('change', scheduleCortexReveal);
+  function scheduleReveal(){if(!revealQueued){revealQueued=true;requestAnimationFrame(updateReveal);}}
+  function openCortex(){revealForTransaction=true;updateReveal();}
+  addEventListener('scroll',scheduleReveal,{passive:true});
+  addEventListener('resize',scheduleReveal,{passive:true});
+  reducedMotion.addEventListener('change',scheduleReveal);
+
   const definitions = {
-    client: ['Request', 'CLIENT'], waf: ['WAF', 'SECURITY'], lb: ['Balancer', 'TRAFFIC'],
-    gateway: ['API gateway', 'AUTH · ROUTE'], apiA: ['Service 01', 'REPLICA A'],
-    apiB: ['Service 02', 'REPLICA B'], apiC: ['Service 03', 'REPLICA C'],
-    queue: ['Message queue', 'BUFFER'], worker: ['Worker', 'CONSUMER'],
-    shardA: ['Shard A', 'DATA 01'], shardB: ['Shard B', 'DATA 02'], shardC: ['Shard C', 'DATA 03'],
-    ws: ['WebSocket', 'REALTIME'], success: ['200 OK', 'DELIVERED']
+    client:['Request','CLIENT','An incoming transaction from the visitor'],
+    waf:['WAF','EDGE DEFENCE','Inspect traffic and reject suspicious requests'],
+    rate:['Rate limiter','QUOTAS','Apply throttling before application routing'],
+    lb:['Load balancer','TRAFFIC','Distribute concurrent traffic across capacity'],
+    gateway:['API gateway','POLICIES','Route and normalize API requests'],
+    auth:['Identity','AUTHN · AUTHZ','Check token and permissions'],
+    apiA:['API / 01','REPLICA A','Stateless API instance'],
+    apiB:['API / 02','REPLICA B','Additional instance activated under load'],
+    apiC:['API / 03','REPLICA C','Additional instance activated under load'],
+    cache:['Redis cache','FAST PATH','Example idempotency lookup before queuing'],
+    queue:['Message queue','BUFFER','Durable job delivery and backpressure'],
+    worker:['Worker pool','ASYNC JOBS','Consume jobs and write to data storage'],
+    retry:['Retry policy','BACKOFF','Retry transient worker failures'],
+    dlq:['Dead-letter','ISOLATION','Hold jobs after retry budget is exhausted'],
+    shardA:['Shard 01','PARTITION A','Partition chosen by key'],
+    shardB:['Shard 02','PARTITION B','Partition chosen by key'],
+    shardC:['Shard 03','PARTITION C','Partition chosen by key'],
+    ws:['WebSocket','PUSH EVENT','Publish an async completion event'],
+    success:['200 OK','DELIVERED','Successful simulated completion'],
+    blocked:['4XX','REJECTED','Request rejected before application processing'],
+    failed:['503 ERROR','UNAVAILABLE','Request failed and entered a dead-letter path'],
+    metrics:['Telemetry','TRACES','Observe stages, errors and retries'],
+    autoscale:['Autoscaler','CAPACITY','Add API replicas for simulated burst load']
   };
-  const links = [
-    ['client','waf'], ['waf','lb'], ['lb','gateway'],
-    ['gateway','apiA'], ['gateway','apiB'], ['gateway','apiC'],
-    ['apiA','queue'], ['apiB','queue'], ['apiC','queue'],
-    ['queue','worker'], ['worker','shardA'], ['worker','shardB'], ['worker','shardC'],
-    ['shardA','ws'], ['shardB','ws'], ['shardC','ws'], ['ws','success']
+  const primaryLinks=[
+    ['client','waf'],['waf','rate'],['waf','blocked'],['rate','blocked'],['rate','lb'],
+    ['lb','gateway'],['gateway','auth'],['auth','blocked'],
+    ['auth','apiA'],['auth','apiB'],['auth','apiC'],
+    ['apiA','cache'],['apiB','cache'],['apiC','cache'],
+    ['cache','queue'],['queue','worker'],['worker','retry'],['retry','worker'],['retry','dlq'],['dlq','failed'],
+    ['worker','shardA'],['worker','shardB'],['worker','shardC'],
+    ['shardA','ws'],['shardB','ws'],['shardC','ws'],['ws','success']
   ];
-  const layouts = {
-    desktop: {
-      view: '0 0 1230 610',
-      nodes: {
-        client:[82,325], waf:[218,325], lb:[356,325], gateway:[501,325],
-        apiA:[668,194], apiB:[668,325], apiC:[668,457],
-        queue:[816,325], worker:[958,325],
-        shardA:[1104,194], shardB:[1104,325], shardC:[1104,457],
-        ws:[956,82], success:[1110,82]
-      }
-    },
-    mobile: {
-      view: '0 0 430 640',
-      nodes: {
-        client:[72,75], waf:[215,75], lb:[358,75], gateway:[358,175],
-        apiA:[72,271], apiB:[215,271], apiC:[358,271],
-        queue:[113,365], worker:[316,365],
-        shardA:[72,460], shardB:[215,460], shardC:[358,460],
-        ws:[113,563], success:[317,563]
-      }
-    }
+  const ambientLinks=[['apiB','metrics'],['worker','metrics'],['metrics','autoscale']];
+  const layouts={
+    desktop:{view:'0 0 1500 750',nodes:{
+      client:[92,368],waf:[242,252],rate:[242,368],lb:[391,368],gateway:[548,368],auth:[705,368],
+      apiA:[873,225],apiB:[873,368],apiC:[873,511],cache:[1037,225],queue:[1037,368],worker:[1204,368],
+      retry:[1204,522],dlq:[1360,612],shardA:[1370,247],shardB:[1370,368],shardC:[1370,489],
+      ws:[1204,103],success:[1365,103],blocked:[548,585],failed:[1360,701],metrics:[885,658],autoscale:[705,658]
+    }},
+    mobile:{view:'0 0 520 1025',nodes:{
+      client:[92,75],waf:[260,75],rate:[428,75],lb:[92,191],gateway:[260,191],auth:[428,191],
+      apiA:[92,308],apiB:[260,308],apiC:[428,308],cache:[92,426],queue:[260,426],worker:[428,426],
+      retry:[92,548],dlq:[260,548],blocked:[428,548],
+      shardA:[92,671],shardB:[260,671],shardC:[428,671],
+      ws:[92,795],success:[260,795],failed:[428,795],
+      metrics:[170,934],autoscale:[350,934]
+    }}
   };
-  const metrics = {
-    sent: $('metric-sent'), completed: $('metric-completed'),
-    flight: $('metric-flight'), queue: $('metric-queue'),
-    replicas: $('metric-replicas'), result: $('metric-result')
-  };
-  const state = {
-    nextId: 0, completed: 0, inFlight: 0, queueDepth: 0,
-    replicas: 1, recentClicks: [], scaleHoldUntil: 0,
-    nodes: new Map(), paths: new Map(), activeWires: new Map(),
-    resizePending: false, mobile: mobileMedia.matches
-  };
+  const metrics={sent:$('metric-sent'),completed:$('metric-completed'),failed:$('metric-failed'),flight:$('metric-flight'),queue:$('metric-queue'),replicas:$('metric-replicas'),result:$('metric-result'),retried:$('metric-retried')};
+  const state={nextId:0,completed:0,failed:0,retried:0,inFlight:0,queueDepth:0,replicas:1,
+    recentClicks:[],scaleHoldUntil:0,nodes:new Map(),paths:new Map(),activeWires:new Map(),mobile:mobileMedia.matches,resizePending:false};
   let scaleResetTimeout;
-  function el(tag, attrs = {}, text) {
-    const node = document.createElementNS(NS, tag);
-    for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, String(value));
-    if (text !== undefined) node.textContent = text;
-    return node;
+  function el(tag,attrs={},text){const node=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attrs))node.setAttribute(k,String(v));if(text!==undefined)node.textContent=text;return node;}
+  function clear(layer){layer.replaceChildren();}
+  function position(id){return layouts[state.mobile?'mobile':'desktop'].nodes[id];}
+  function pathData(from,to){
+    const [x1,y1]=position(from),[x2,y2]=position(to);
+    const dx=x2-x1,dy=y2-y1;
+    const bend=Math.abs(dy)>45?Math.min(44,Math.abs(dx)*.18+11)*(dx>=0?1:-1):0;
+    return `M ${x1} ${y1} Q ${(x1+x2)/2+bend} ${(y1+y2)/2-bend} ${x2} ${y2}`;
   }
-  function clear(layer) { layer.replaceChildren(); }
-  function position(id) { return layouts[state.mobile ? 'mobile' : 'desktop'].nodes[id]; }
-  function pathData(from, to) {
-    const [x1,y1] = position(from); const [x2,y2] = position(to);
-    const dx=x2-x1, dy=y2-y1;
-    const curve = Math.abs(dy)>30 ? Math.min(35, Math.abs(dx)*.18 + 12) * (dx >= 0 ? 1 : -1) : 0;
-    return `M ${x1} ${y1} Q ${(x1+x2)/2+curve} ${(y1+y2)/2-curve} ${x2} ${y2}`;
-  }
-  function addBackdrop() {
-    if (state.mobile) {
-      layers.brain.append(el('ellipse',{cx:210,cy:313,rx:174,ry:244,class:'brain-halo'}));
-      for(let i=0;i<5;i++) layers.brain.append(el('path',{
-        d:`M ${23+i*10} ${193+i*17} C ${35+i*17} ${-8+i*8}, ${397-i*13} ${-1+i*13}, ${399-i*9} ${208+i*15} S ${52+i*10} ${504+i*14}, ${44+i*9} ${434+i*10}`,
-        class:'brain-arc'
-      }));
-      [['EDGE',12,27],['APPLICATION',12,226],['ASYNC PROCESSING',12,337],['SHARDED DATA',12,419],['DELIVERY',12,538]].forEach(([name,x,y])=>layers.zones.append(el('text',{x,y,class:'zone-label'},name)));
-    } else {
-      layers.brain.append(el('ellipse',{cx:706,cy:314,rx:500,ry:310,class:'brain-halo'}));
-      for(let i=0;i<12;i++) layers.brain.append(el('path',{
-        d:`M ${237+i*13} ${185+i*9} C ${350+i*16} ${-60+i*21}, ${980-i*13} ${-16+i*14}, ${1120-i*12} ${223+i*6} S ${650+i*17} ${676-i*5}, ${315+i*12} ${454-i*6}`,
-        class:'brain-arc'
-      }));
-      [['01  EDGE & TRUST',43,68],['02  APPLICATION',548,68],['03  EVENTS',772,68],['04  DATA',1059,567]].forEach(([name,x,y])=>layers.zones.append(el('text',{x,y,class:'zone-label'},name)));
-      for(const x of [290,574,755,1029]) layers.zones.append(el('line',{x1:x,y1:98,x2:x,y2:535,class:'zone-rule'}));
+  function addBackdrop(){
+    const mobile=state.mobile;
+    const c=mobile?[260,520,235,395]:[820,372,635,350];
+    layers.brain.append(el('ellipse',{cx:c[0],cy:c[1],rx:c[2],ry:c[3],class:'brain-halo'}));
+    for(let i=0;i<(mobile?7:14);i++){
+      const base=mobile?34:220,end=mobile?486:1450;
+      layers.brain.append(el('path',{d:`M ${base+i*7} ${mobile?245+i*22:245+i*12} C ${mobile?45+i*19:345+i*18} ${mobile?20+i*25:-40+i*22}, ${mobile?490-i*9:1220-i*18} ${mobile?40+i*29:10+i*18}, ${end-i*5} ${mobile?460+i*12:340+i*7} S ${mobile?44+i*10:870+i*24} ${mobile?950-i*6:760-i*8}, ${base+i*7} ${mobile?800-i*4:640-i*4}`,class:'brain-arc'}));
     }
+    const zones=mobile?[['EDGE & ROUTING',14,30],['SERVICES & EVENTS',14,263],['RESILIENCE',14,503],['SHARDED DATA',14,625],['OBSERVABILITY',14,890]]:
+      [['01 / EDGE & TRUST',43,76],['02 / SERVICES',743,76],['03 / EVENTS & DATA',1050,76],['04 / RESILIENCE',1100,689]];
+    zones.forEach(([name,x,y])=>layers.zones.append(el('text',{x,y,class:'zone-label'},name)));
+    if(!mobile)for(const x of [318,617,964,1290])layers.zones.append(el('line',{x1:x,y1:95,x2:x,y2:710,class:'zone-rule'}));
   }
-  function renderDiagram() {
+  function renderDiagram(){
     if(state.inFlight>0){state.resizePending=true;return;}
     state.mobile=mobileMedia.matches;
     svg.setAttribute('viewBox',layouts[state.mobile?'mobile':'desktop'].view);
     Object.values(layers).forEach(clear);
-    state.nodes.clear(); state.paths.clear(); state.activeWires.clear();
+    state.nodes.clear();state.paths.clear();state.activeWires.clear();
     addBackdrop();
-    links.forEach(([from,to],index)=>{
-      const d=pathData(from,to);
+    for(const [index,[from,to]] of [...primaryLinks,...ambientLinks].entries()){
       const key=`${from}->${to}`;
-      const wire=el('path',{d,class:`wire${index % 4===0?' wire-dash':''}`,'data-edge':key});
-      layers.wires.append(wire);
-      state.paths.set(key,wire);
-    });
-    Object.entries(definitions).forEach(([id,[name,detail]])=>{
+      const wire=el('path',{d:pathData(from,to),class:`wire${index%6===0?' wire-dash':''}${index>=primaryLinks.length?' wire-ambient':''}`,'data-edge':key});
+      layers.wires.append(wire);state.paths.set(key,wire);
+    }
+    Object.entries(definitions).forEach(([id,[name,detail,explanation]],index)=>{
       const [x,y]=position(id);
-      const group=el('g',{'class':'node'+(['apiB','apiC'].includes(id)?' is-dormant':''),'data-node':id,'transform':`translate(${x} ${y})`});
-      group.append(el('rect',{class:'node-halo',x:-49,y:-25,width:98,height:50,rx:12}));
-      group.append(el('rect',{class:'node-bg',x:-55,y:-26,width:110,height:52,rx:8}));
-      group.append(el('circle',{class:'node-circle',cx:-43,cy:-14,r:2.6}));
+      const group=el('g',{class:`node${['apiB','apiC'].includes(id)?' is-dormant':''}${['metrics','autoscale'].includes(id)?' is-observer':''}`, 'data-node':id,transform:`translate(${x} ${y})`});
+      group.append(el('title',{},`${name}: ${explanation}`));
+      group.append(el('rect',{class:'node-halo',x:-52,y:-26,width:104,height:52,rx:12}));
+      group.append(el('rect',{class:'node-bg',x:-57,y:-28,width:114,height:56,rx:9}));
+      group.append(el('rect',{class:'node-meter',x:-49,y:22,width:98,height:2,rx:1}));
+      group.append(el('circle',{class:'node-circle',cx:-44,cy:-16,r:2.7,style:`animation-delay:-${index%7*.35}s`}));
+      group.append(el('circle',{class:'node-spark',cx:44,cy:-16,r:2.1,style:`animation-delay:-${index%9*.43}s`}));
       group.append(el('text',{class:'node-title',x:0,y:-2,'text-anchor':'middle'},name));
-      group.append(el('text',{class:'node-detail',x:0,y:14,'text-anchor':'middle'},detail));
-      layers.nodes.append(group);
-      state.nodes.set(id,group);
+      group.append(el('text',{class:'node-detail',x:0,y:13,'text-anchor':'middle'},detail));
+      layers.nodes.append(group);state.nodes.set(id,group);
     });
     refreshReplicas();
   }
   function pad(n){return String(n).padStart(2,'0');}
   function refreshMetrics(){
-    metrics.sent.textContent=pad(state.nextId);
-    metrics.completed.textContent=pad(state.completed);
-    metrics.flight.textContent=pad(state.inFlight);
-    metrics.queue.textContent=pad(state.queueDepth);
+    metrics.sent.textContent=pad(state.nextId);metrics.completed.textContent=pad(state.completed);
+    metrics.failed.textContent=pad(state.failed);metrics.retried.textContent=pad(state.retried);
+    metrics.flight.textContent=pad(state.inFlight);metrics.queue.textContent=pad(state.queueDepth);
     metrics.replicas.innerHTML=`${pad(state.replicas)} <small>/ 03</small>`;
   }
-  function setTrace(message){$('trace-message').textContent=message;}
-  function setStatus(message){$('system-status').textContent=message;}
-  function refreshReplicas(){
-    ['apiA','apiB','apiC'].forEach((id,index)=>{
-      const node=state.nodes.get(id);if(!node)return;
-      node.classList.toggle('is-dormant',index>=state.replicas);
-      node.classList.toggle('is-scaled',index>0&&index<state.replicas);
-    });
-  }
-  function activate(id, duration=380){
-    const node=state.nodes.get(id); if(!node)return;
-    node.classList.add('is-active');
-    // Don't erase a newer pulse when several requests visit the same node.
+  function setTrace(s){$('trace-message').textContent=s;}
+  function setStatus(s){$('system-status').textContent=s;}
+  function refreshReplicas(){['apiA','apiB','apiC'].forEach((id,i)=>{const node=state.nodes.get(id);if(node){node.classList.toggle('is-dormant',i>=state.replicas);node.classList.toggle('is-scaled',i>0&&i<state.replicas);}});}
+  function activate(id,duration=500,type='active'){
+    const node=state.nodes.get(id);if(!node)return;
+    const cls=type==='error'?'is-error':type==='retry'?'is-retrying':type==='success'?'is-success':'is-active';
+    node.classList.add(cls);
     clearTimeout(node.pulseTimeout);
-    node.pulseTimeout=setTimeout(()=>node.classList.remove('is-active'),duration);
+    node.pulseTimeout=setTimeout(()=>node.classList.remove('is-active','is-error','is-retrying','is-success'),duration);
   }
   function scaleUp(){
-    if(state.replicas===3){state.scaleHoldUntil=Date.now()+2200;return;}
-    state.replicas=3;state.scaleHoldUntil=Date.now()+2200;
-    clearTimeout(scaleResetTimeout);
-    refreshReplicas();refreshMetrics();setStatus('BURST / SCALING');
-    setTrace('Burst detected — traffic spreading across 3 API replicas.');
+    state.scaleHoldUntil=Date.now()+2800;
+    if(state.replicas===3)return;
+    state.replicas=3;clearTimeout(scaleResetTimeout);refreshReplicas();refreshMetrics();
+    activate('autoscale',1500);setStatus('BURST / SCALING');
+    setTrace('Burst detected — autoscaler activated two more API replicas.');
+    addEvent('scale','↗','Autoscaler expanded the pool to 3 replicas');
   }
   function maybeScaleDown(){
     clearTimeout(scaleResetTimeout);
@@ -325,135 +386,137 @@
     scaleResetTimeout=setTimeout(()=>{
       if(state.inFlight!==0){maybeScaleDown();return;}
       state.replicas=1;refreshReplicas();refreshMetrics();setStatus('SYSTEM IDLE');
-      setTrace(`System settled. ${state.completed} completed request${state.completed===1?'':'s'} — ready for more.`);
+      setTrace(`System settled · ${state.completed} succeeded · ${state.failed} failed · ready for more.`);
+      addEvent('scale','↘','Load settled — scaled down to 1 replica');
     },delay+300);
   }
-  function lightWire(key,on){
-    const wire=state.paths.get(key);if(!wire)return;
-    const count=(state.activeWires.get(key)||0)+(on?1:-1);
-    if(count<=0){state.activeWires.delete(key);wire.classList.remove('is-active');}
-    else {state.activeWires.set(key,count);wire.classList.add('is-active');}
-  }
+  function lightWire(key,on){const wire=state.paths.get(key);if(!wire)return;const count=(state.activeWires.get(key)||0)+(on?1:-1);if(count<=0){state.activeWires.delete(key);wire.classList.remove('is-active');}else{state.activeWires.set(key,count);wire.classList.add('is-active');}}
   function makePacket(id){
     const group=el('g',{class:'packet'});
     group.append(el('circle',{class:'packet-outer',r:13}));
     group.append(el('circle',{class:'packet-core',r:4.5}));
     group.append(el('text',{class:'packet-tag',x:10,y:-10},`#${pad(id)}`));
-    layers.packets.append(group);
-    return group;
+    layers.packets.append(group);return group;
   }
   function tweenWire(from,to,packet,duration){
-    const key=`${from}->${to}`;
-    const path=state.paths.get(key);
-    if(!path)return Promise.resolve();
-    lightWire(key,true);
-    const length=path.getTotalLength();
-    const d=reducedMotion.matches?40:duration;
+    const path=state.paths.get(`${from}->${to}`);
+    if(!path)throw Error(`Missing architecture link ${from} -> ${to}`);
+    const key=`${from}->${to}`;lightWire(key,true);
+    const length=path.getTotalLength(),d=reducedMotion.matches?28:duration;
     return new Promise(resolve=>{
       const start=performance.now();
-      function tick(now){
-        const p=Math.min(1,(now-start)/d);
-        const eased=p*p*(3-2*p);
-        const point=path.getPointAtLength(length*eased);
-        packet.setAttribute('transform',`translate(${point.x.toFixed(2)} ${point.y.toFixed(2)})`);
-        if(p<1){requestAnimationFrame(tick);}else{lightWire(key,false);resolve();}
+      function tick(now){const p=Math.min(1,(now-start)/d),ease=p*p*(3-2*p),pos=path.getPointAtLength(length*ease);
+        packet.setAttribute('transform',`translate(${pos.x.toFixed(2)} ${pos.y.toFixed(2)})`);
+        if(p<1)requestAnimationFrame(tick);else{lightWire(key,false);resolve();}
       }
       requestAnimationFrame(tick);
     });
   }
-  function stageMessage(id,node){
-    const descriptions={waf:'WAF inspecting request',lb:'Load balancer selecting capacity',gateway:'Gateway validating and routing',
-      apiA:'Service replica A processing',apiB:'Service replica B processing',apiC:'Service replica C processing',
-      queue:'Event accepted by queue',worker:'Worker consuming event',shardA:'Committed to shard A',shardB:'Committed to shard B',shardC:'Committed to shard C',ws:'WebSocket delivering update',success:'Success response delivered'};
-    if(state.inFlight<=2) setTrace(`#${pad(id)}  →  ${descriptions[node]||'Processing'}`);
+  function addEvent(kind,code,message){
+    const feed=$('event-feed');
+    const li=document.createElement('li');li.className=`event-item event-${kind}`;
+    const s=document.createElement('span');s.className='event-code';s.textContent=code;
+    const t=document.createElement('span');t.textContent=message;
+    li.append(s,t);feed.prepend(li);
+    while(feed.children.length>5)feed.lastElementChild.remove();
   }
-  async function runRequest(){
-    openCortex();
-    clearTimeout(scaleResetTimeout);
-    const now=Date.now();state.recentClicks=state.recentClicks.filter(ts=>now-ts<1600);
-    state.recentClicks.push(now);
-    state.nextId+=1;state.inFlight+=1;
-    const id=state.nextId;
+  function stageMessage(id,node){
+    const desc={waf:'Security inspection',rate:'Rate quota check',lb:'Load distribution',gateway:'API policy routing',auth:'Identity validated',
+      apiA:'Replica A processing',apiB:'Replica B processing',apiC:'Replica C processing',cache:'Redis idempotency lookup',
+      queue:'Message queued',worker:'Worker consuming',retry:'Retry with backoff',shardA:'Shard A commit',shardB:'Shard B commit',shardC:'Shard C commit',
+      ws:'WebSocket pushed an event',blocked:'Request rejected',dlq:'Dead-letter isolation',success:'200 delivered',failed:'503 unavailable'};
+    if(state.inFlight<=2)setTrace(`#${pad(id)}  →  ${desc[node]||node}`);
+  }
+  function markPacket(packet,type){packet.classList.toggle('packet-error',type==='error');packet.classList.toggle('packet-retry',type==='retry');}
+  function result(id,status,reason){
+    const failure=status!==200;
+    if(failure)state.failed++;else state.completed++;
+    metrics.result.replaceChildren();
+    const led=document.createElement('i');led.className='result-led';led.setAttribute('aria-hidden','true');
+    metrics.result.append(led,document.createTextNode(` #${pad(id)} / ${status} ${reason}`));
+    metrics.result.parentElement.classList.toggle('done',!failure);
+    metrics.result.parentElement.classList.toggle('error',failure);
+    const description=`#${pad(id)} · ${status} ${reason}`;
+    addEvent(failure?'error':'success',String(status),description);
+    setTrace(description+(status===503?' · Job placed in the dead-letter queue.':status===403?' · Blocked at the edge.':status===429?' · Rate limit enforced.':' · Trace complete.'));
+    activate('metrics',620);refreshMetrics();
+  }
+  async function runRequest(scenario='healthy'){
+    if(state.inFlight>=15){setTrace('Traffic guard: maximum 15 simulated requests in flight.');return;}
+    openCortex();clearTimeout(scaleResetTimeout);
+    const now=Date.now();state.recentClicks=state.recentClicks.filter(ts=>now-ts<1600);state.recentClicks.push(now);
+    const id=++state.nextId;state.inFlight++;
     if(state.recentClicks.length>=3||state.inFlight>=4)scaleUp();
     else if(state.replicas===1)setStatus('PROCESSING');
     refreshMetrics();
-    if(state.inFlight<3)setTrace(`#${pad(id)}  →  Request initiated. Entering security edge.`);
-    const packet=makePacket(id);
-    const client=position('client');packet.setAttribute('transform',`translate(${client[0]} ${client[1]})`);
+    if(state.inFlight<3)setTrace(`#${pad(id)}  →  New ${scenario==='healthy'?'request':scenario} scenario entering the edge.`);
+    const packet=makePacket(id),[x,y]=position('client');packet.setAttribute('transform',`translate(${x} ${y})`);
     activate('client');
     let queued=false;
+    async function go(from,to,duration=285,type='active'){
+      await tweenWire(from,to,packet,duration);activate(to,type==='error'?1100:620,type);stageMessage(id,to);
+    }
     try{
-      const route=['client','waf','lb','gateway'];
-      for(let i=1;i<route.length;i++){
-        await tweenWire(route[i-1],route[i],packet,360);
-        activate(route[i]);stageMessage(id,route[i]);
+      await go('client','waf');
+      if(scenario==='blocked'){
+        markPacket(packet,'error');await go('waf','blocked',450,'error');result(id,403,'FORBIDDEN');return;
       }
-      // Routing is determined at the load-balancing stage, not at click time.
+      await go('waf','rate');
+      if(scenario==='throttled'){
+        markPacket(packet,'error');await go('rate','blocked',390,'error');result(id,429,'RATE LIMITED');return;
+      }
+      await go('rate','lb');await go('lb','gateway');await go('gateway','auth');
       const replica=['apiA','apiB','apiC'][(id-1)%state.replicas];
       const shard=['shardA','shardB','shardC'][(id-1)%3];
-      const rest=[replica,'queue','worker',shard,'ws','success'];
-      let prior='gateway';
-      for(const node of rest){
-        await tweenWire(prior,node,packet,node==='ws'?440:375);
-        if(node==='queue'){state.queueDepth++;queued=true;refreshMetrics();}
-        if(node==='worker'&&queued){state.queueDepth=Math.max(0,state.queueDepth-1);queued=false;refreshMetrics();}
-        activate(node,node==='success'?1250:420);
-        stageMessage(id,node);
-        if(node==='success'){
-          const success=state.nodes.get('success');success.classList.add('is-success');
-          setTimeout(()=>success.classList.remove('is-success'),1000);
+      await go('auth',replica,335);await go(replica,'cache',340);await go('cache','queue');
+      state.queueDepth++;queued=true;refreshMetrics();
+      await go('queue','worker');state.queueDepth=Math.max(0,state.queueDepth-1);queued=false;refreshMetrics();
+      if(scenario==='recovered'||scenario==='outage'){
+        markPacket(packet,'retry');state.retried++;refreshMetrics();
+        await go('worker','retry',300,'retry');addEvent('retry','↻',`#${pad(id)} · Worker error, retry policy activated`);
+        if(scenario==='outage'){
+          // One illustrative retry cycle, then isolation to a DLQ.
+          await go('retry','worker',325,'retry');state.retried++;refreshMetrics();
+          await go('worker','retry',300,'retry');
+          markPacket(packet,'error');await go('retry','dlq',440,'error');await go('dlq','failed',350,'error');
+          result(id,503,'UNAVAILABLE');return;
         }
-        prior=node;
+        await go('retry','worker',325,'retry');markPacket(packet,'healthy');
       }
-      state.completed++;
-      metrics.result.innerHTML=`<i class="result-led" aria-hidden="true"></i> #${pad(id)} / 200 OK`;
-      metrics.result.parentElement.classList.add('done');
-      setTrace(state.inFlight>1?`#${pad(id)} delivered — ${state.inFlight-1} other requests in flight.`:`#${pad(id)} delivered. End-to-end trace complete — 200 OK.`);
-    }catch(error){
-      // An unexpected animation error should never leave dashboard counts stuck.
-      console.error('Cloud Cortex simulation error:',error);
-      setTrace('Simulation interrupted. You can try another request.');
+      await go('worker',shard,345);await go(shard,'ws',400);await go('ws','success',340,'success');
+      result(id,200,scenario==='recovered'?'OK · RECOVERED':'OK');
+    }catch(e){
+      console.error('Cloud Cortex simulation error:',e);
+      result(id,500,'SIMULATION ERROR');
     }finally{
       if(queued)state.queueDepth=Math.max(0,state.queueDepth-1);
-      packet.remove();state.inFlight=Math.max(0,state.inFlight-1);
-      refreshMetrics();
-      if(state.inFlight===0){
-        if(state.resizePending){state.resizePending=false;renderDiagram();}
-        if(state.replicas>1)maybeScaleDown();else setStatus('SYSTEM IDLE');
-      }
+      packet.remove();state.inFlight=Math.max(0,state.inFlight-1);refreshMetrics();
+      if(state.inFlight===0){if(state.resizePending){state.resizePending=false;renderDiagram();}
+        if(state.replicas>1)maybeScaleDown();else setStatus('SYSTEM IDLE');}
     }
   }
-  // Debounce the top CTA: visitors can tap it repeatedly before the page scrolls.
-  // Every tap still becomes its own independent transaction.
-  let pendingHeroClicks=0;
-  let heroFlushTimer;
-  $('send-request').addEventListener('click',()=>{
-    pendingHeroClicks++;
-    clearTimeout(heroFlushTimer);
-    heroFlushTimer=setTimeout(()=>{
-      const count=pendingHeroClicks;
-      pendingHeroClicks=0;
-      const diagram=document.querySelector('.system-shell');
-      const rect=diagram.getBoundingClientRect();
-      const visible=Math.max(0,Math.min(innerHeight,rect.bottom)-Math.max(0,rect.top));
-      const needsScroll=visible<Math.min(390,rect.height*.6);
-      if(needsScroll)diagram.scrollIntoView({behavior:reducedMotion.matches?'auto':'smooth',block:'start'});
-      const delay=needsScroll&&!reducedMotion.matches?500:0;
-      for(let i=0;i<count;i++)setTimeout(()=>{void runRequest();},delay+i*115);
-    },320);
-  });
-  $('send-inline').addEventListener('click',()=>{void runRequest();});
-  $('send-burst').addEventListener('click',()=>{
-    const diagram=document.querySelector('.system-shell');
-    const rect=diagram.getBoundingClientRect();
+  function bringDiagramIntoView(){
+    const diagram=document.querySelector('.system-shell'),rect=diagram.getBoundingClientRect();
     const visible=Math.max(0,Math.min(innerHeight,rect.bottom)-Math.max(0,rect.top));
     const needsScroll=visible<Math.min(390,rect.height*.6);
     if(needsScroll)diagram.scrollIntoView({behavior:reducedMotion.matches?'auto':'smooth',block:'start'});
-    const delay=needsScroll&&!reducedMotion.matches?550:0;
-    for(let i=0;i<5;i++)setTimeout(()=>{void runRequest();},delay+i*130);
+    return needsScroll&&!reducedMotion.matches?500:0;
+  }
+  let heroClicks=0,heroTimer;
+  $('send-request').addEventListener('click',()=>{
+    heroClicks++;clearTimeout(heroTimer);
+    heroTimer=setTimeout(()=>{
+      const count=heroClicks;heroClicks=0;const delay=bringDiagramIntoView();
+      for(let i=0;i<count;i++)setTimeout(()=>{void runRequest();},delay+i*115);
+    },240);
   });
-  mobileMedia.addEventListener('change',()=>renderDiagram());
-  updateCortexReveal();renderDiagram();refreshMetrics();
+  $('send-inline').addEventListener('click',()=>{void runRequest($('scenario-mode').value);});
+  $('send-burst').addEventListener('click',()=>{
+    const delay=bringDiagramIntoView();
+    ['healthy','healthy','recovered','outage','healthy'].forEach((scenario,i)=>setTimeout(()=>{void runRequest(scenario);},delay+i*145));
+  });
+  mobileMedia.addEventListener('change',renderDiagram);
+  updateReveal();renderDiagram();refreshMetrics();
 })();
 </script></body>
 </html>
