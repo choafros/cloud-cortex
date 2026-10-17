@@ -1,52 +1,30 @@
-# Cloud Cortex — afroz.co.uk
+# Cloud Cortex · afroz.co.uk
 
-A bespoke, dependency-free, responsive personal portfolio concept for Afroz. Its centerpiece is an interactive, **browser-side simulation** of a cloud request flowing through security, traffic routing, APIs, replicas, an event queue, workers, database shards and WebSocket delivery. The site is static and does **not** connect to or simulate real production infrastructure.
+A bespoke, responsive static portfolio centred on a **living cloud-brain animation**. The architecture, packets, metrics, error codes and scaling are **browser-side simulations**, not production cloud traffic.
 
-## Run locally
+## Run
 
-Open `index.html` directly in a modern browser, or run `python3 -m http.server 8000` from this directory and visit `http://localhost:8000`.
+Open `index.html` directly or serve the repository root using `python3 -m http.server 8000`. No build step, npm or secrets required. Deploy the repository root on Netlify or GitHub Pages, then configure your IONOS domain separately.
 
-No packages, build process, credentials, trackers, cloud account or API tokens are required.
+## V1.2 interactions
 
-## Brain → cloud scroll reveal
+- **Scroll reveal:** the initial neural image dissolves, leaving a very faint projected brain behind the interactive SVG map.
+- **Send a request:** follow a successful request through WAF → rate limiter → load balancer → gateway → identity → selected API replica → Redis cache → message queue → worker → a data shard → WebSocket → 200 OK.
+- **Try a 5× burst:** five concurrent simulated requests fan out across three API replicas. Four finish successfully (one after recovering from a transient worker failure); one exhausts its retries and ends at 503 after entering a dead-letter queue. Capacity returns to one replica when idle.
+- **Scenario picker:** choose Healthy (200), Security blocked (403), Rate limited (429), Retry and recover (200), or Service failure (503). Outcomes are deterministic, not randomized.
+- **Living nodes:** understated idle heartbeats; temporary activity, retry and error highlights; counters for requests, successes, failures, in-flight, queue, retries, and replicas; plus a recent event stream.
+- **Responsive and accessible:** separate mobile node coordinates, accessible buttons and select, textual live trace, reduced-motion support.
 
-The opening artwork is a bespoke, animated SVG (`assets/brain.svg`). Scrolling progressively dissolves the translucent brain layer and uncovers the full interactive SVG infrastructure map. Running a request also reveals the architecture immediately. The reveal is reversible when scrolling back up, and reduced-motion visitors see the architecture without a transition. No image libraries or external requests are used.
+Components shown include WAF, limiter, load balancer, API gateway, identity, API replicas, Redis, queue, worker, retry policy, dead-letter queue, three data shards, WebSocket, telemetry and autoscaler. Not every component is on every transaction path. This is an explorable metaphor, not an endorsed production architecture.
 
-## Interactions
+## Files
 
-- **Send a request:** follow a packet across WAF → load balancer → API gateway → selected API replica → message queue → worker → database shard → WebSocket → 200 OK.
-- **Click quickly**, or use **Try a 5× burst:** multiple packets are animated concurrently. At 3 requests within 1.6 seconds (or 4 in flight), additional application replicas activate and requests fan out.
-- **Readouts:** local counters for sent, completed, in-flight, queue depth, active replicas and last result.
-- **Responsive diagram:** recomposed topology for mobile, not just a squashed desktop diagram.
-- **Reduced motion:** animates minimally when the operating system's `prefers-reduced-motion` setting is enabled.
+- `index.html` — page layout, controls, metadata (favicon currently embedded as a small SVG)
+- `styles.css` — colours, responsive layout, effects
+- `script.js` — SVG topology, deterministic simulation and counters
+- `assets/brain.svg` — custom neural artwork
+- `AGENTS.md` — Codex guidelines
 
-## Edit before publishing
+## Before public portfolio launch
 
-1. Replace the introductory biography with your preferred summary.
-2. Replace the **STORY TO COME** sections with your actual beginnings, professional development and ambitions. The current text intentionally makes no unverified career claims.
-3. Replace the `hello@afroz.co.uk` placeholder if the mailbox does not exist; the CTA should never lead to an unmonitored address.
-4. Add social links and your CV when you are ready.
-5. Review the simulation labels if your desired architecture narrative changes.
-
-## Structure
-
-```
-index.html         page structure, accessible buttons, SEO metadata
-styles.css         responsive design, theme and reduced motion
-script.js          SVG graph, independent packet animations and scaling logic
-assets/favicon.svg logo favicon
-assets/brain.svg    custom animated neural illustration
-AGENTS.md          instructions for future Codex iterations
-```
-
-## Host
-
-**Netlify:** import the GitHub repository; use the repository root as the publish directory (`.`), and leave the build command blank. Add `afroz.co.uk` as a custom domain; update IONOS DNS records using the values Netlify provides. Configure HTTPS after DNS is verified.
-
-**GitHub Pages:** Settings → Pages → Deploy from a branch → `main` → `/ (root)`. Set `afroz.co.uk` under Custom domain, and configure the domain DNS according to GitHub's current documentation. Verify HTTPS and www/non-www redirects.
-
-Do not point DNS at both hosts. Keep the registration with IONOS; hosting and registrar need not be the same company.
-
-## License
-
-Copyright © Afroz. All rights reserved until a license is explicitly chosen.
+The biography, story sections and `hello@afroz.co.uk` are placeholders. Replace them with confirmed information before sharing widely. Copyright © Afroz; all rights reserved until a license is chosen.
