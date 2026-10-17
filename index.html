@@ -119,7 +119,7 @@
 }
 @media(prefers-reduced-motion:reduce){.brain-projection,.node-circle,.node-spark,.feed-dot{animation:none!important}}
 
-body{overflow-x:clip}
+html,body{overflow-x:clip}
 /* V1.3: focus the scene on the request, not continuous decorative movement. */
 .node .node-bg { stroke-width:1; }
 .node.is-active .node-bg { stroke:#b6eed7;stroke-width:1.7; }
@@ -130,6 +130,8 @@ body{overflow-x:clip}
 .outcome-odds span {color:#608e92;padding:0 3px}
 @media(max-width:760px){.brain-projection{opacity:calc(.03 + var(--cortex-reveal) * .09)}.outcome-odds{font-size:8px}}
 @media(prefers-reduced-motion:reduce){.node-spark,.node-circle{animation:none!important}}
+/* Keep decorative glow inside the viewport; don't widen the desktop scroll area. */
+body::before{right:0;width:min(1100px,100vw)}
 </style>
   
 </head>
