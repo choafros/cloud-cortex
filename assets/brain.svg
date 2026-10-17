@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 600" role="img" aria-label="Abstract cloud brain formed from neural pathways">
+<defs>
+ <radialGradient id="cortex-aura"><stop stop-color="#62bea9" stop-opacity=".19"/><stop offset=".58" stop-color="#3a8097" stop-opacity=".045"/><stop offset="1" stop-color="#3a8097" stop-opacity="0"/></radialGradient>
+ <linearGradient id="neuron" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#539da1" stop-opacity=".24"/><stop offset=".55" stop-color="#b0ead9" stop-opacity=".78"/><stop offset="1" stop-color="#4a8b9e" stop-opacity=".25"/></linearGradient>
+ <linearGradient id="boundary" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#9bdbc9" stop-opacity=".55"/><stop offset=".7" stop-color="#609daa" stop-opacity=".2"/><stop offset="1" stop-color="#9ed9cd" stop-opacity=".4"/></linearGradient>
+ <filter id="cortex-blur" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="9"/></filter>
+</defs>
+<ellipse cx="512" cy="303" rx="405" ry="265" fill="url(#cortex-aura)"/>
+<g stroke="#72c6b9" fill="none" opacity=".16"><ellipse cx="512" cy="298" rx="400" ry="244" stroke-dasharray="2 14"/><ellipse cx="512" cy="298" rx="350" ry="218" stroke-dasharray="1 16"/><path d="M108 299h808M512 16v568" stroke-dasharray="2 15" opacity=".35"/></g>
+<g class="cortex-organ" stroke-linecap="round" stroke-linejoin="round" fill="none">
+ <g id="left-side">
+  <path class="cortex-outline" d="M509 132 C483 82 425 70 391 96 C361 70 307 92 295 130 C250 123 220 158 229 195 C186 208 171 252 190 291 C170 329 193 374 227 385 C223 439 271 473 320 464 C341 512 403 516 441 486 C482 491 513 454 512 411" stroke="url(#boundary)" stroke-width="2.3"/>
+  <path class="cortex-branch" d="M494 131C459 145 449 120 420 120S354 137 360 167Q362 189 339 201T308 236"/>
+  <path class="cortex-branch" d="M390 99 Q405 131 391 156 T374 199 Q349 205 338 191"/>
+  <path class="cortex-branch" d="M304 135 C326 153 296 168 280 170Q246 176 261 215T282 262"/>
+  <path class="cortex-branch" d="M230 200 C257 214 222 248 245 264Q259 274 283 258"/>
+  <path class="cortex-branch" d="M191 293 Q230 284 238 320T274 342Q306 347 317 320"/>
+  <path class="cortex-branch" d="M231 385 Q273 374 273 410T304 446Q324 430 337 445"/>
+  <path class="cortex-branch" d="M321 465Q356 435 366 463T418 485"/>
+  <path class="cortex-branch" d="M502 409 Q479 383 456 403T417 427Q388 433 394 467"/>
+  <path class="cortex-branch" d="M506 326 Q474 347 440 326 T373 332Q352 341 366 366"/>
+  <path class="cortex-branch" d="M500 242 C465 223 455 266 422 252T370 270Q348 302 380 318"/>
+  <path class="cortex-branch" d="M325 264Q356 243 361 221T397 192Q422 186 440 203"/>
+  <path class="cortex-branch" d="M287 352 Q308 372 342 360 T402 384Q421 393 435 375"/>
+  <path class="cortex-branch" d="M291 227Q319 210 333 223M293 296Q312 278 331 293M437 147Q459 163 456 187M429 285Q450 298 466 293"/>
+  <path class="cortex-trace" d="M283 352 Q322 321 364 333 T440 326 T500 325"/>
+  <path class="cortex-trace" d="M260 215 Q308 230 357 211 T451 201 T502 241"/>
+  <path class="cortex-trace" d="M303 447 Q360 430 399 449 T491 419"/>
+  <g class="cortex-dots" fill="#a7e8d5" stroke="none"><circle cx="283" cy="352" r="3"/><circle cx="364" cy="333" r="2"/><circle cx="440" cy="326" r="2.5"/><circle cx="260" cy="215" r="2"/><circle cx="357" cy="211" r="3"/><circle cx="451" cy="201" r="2"/><circle cx="303" cy="447" r="2.5"/><circle cx="399" cy="449" r="2"/></g>
+ </g>
+ <use href="#left-side" transform="translate(1024 0) scale(-1 1)"/>
+ <path class="cortex-stem" d="M512 142 Q493 191 512 233T512 322Q499 375 512 409" stroke="#9bdcca" stroke-width="2" stroke-dasharray="3 12" opacity=".57"/>
+ <path class="cortex-stem" d="M512 412C498 454 503 483 513 518C524 482 527 446 512 412" stroke="#70b7ad" stroke-width="1.5" opacity=".33"/>
+</g>
+<g class="external-synapses" fill="#a2e8d1" stroke="#5f9ea6" stroke-width=".8" opacity=".45">
+ <path d="M135 174L215 230M144 398L232 382M821 174L899 142M811 414L886 448" fill="none" stroke-dasharray="2 9"/>
+ <circle cx="135" cy="174" r="2.4"/><circle cx="144" cy="398" r="2.4"/><circle cx="899" cy="142" r="2.4"/><circle cx="886" cy="448" r="2.4"/>
+</g>
+<style>
+.cortex-organ{transform-origin:512px 299px;animation:think 7s ease-in-out infinite}
+.cortex-branch{stroke:url(#neuron);stroke-width:1.65;opacity:.67}
+.cortex-trace{stroke:#a3ebd2;stroke-width:2;opacity:.44;stroke-dasharray:3 15;animation:flow 14s linear infinite}
+.cortex-dots{opacity:.65;animation:blink 5s ease-in-out infinite}
+.cortex-outline{animation:blink 9s ease-in-out infinite}
+@keyframes think{0%,100%{transform:scale(1)}50%{transform:scale(1.012)}}
+@keyframes flow{to{stroke-dashoffset:-180}}
+@keyframes blink{0%,100%{opacity:.35}50%{opacity:.82}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</svg>
