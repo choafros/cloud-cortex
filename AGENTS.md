@@ -7,7 +7,7 @@ A one-page personal portfolio at afroz.co.uk with a polished, interactive "livin
 ## Constraints
 
 - Keep it a **static site** for Netlify or GitHub Pages. No bundler, framework, npm dependencies, APIs, telemetry or credentials unless explicitly approved.
-- Preserve the scrolling brain-to-architecture reveal, including immediate reveal on request and a reduced-motion static fallback.
+- Preserve the scrolling brain-to-architecture reveal, leaving a faint brain projection behind the network, including immediate reveal on request and a reduced-motion static fallback.
 - Maintain a dark restrained visual language: navy background, muted cyan/teal lines, mint success cues and refined typography.
 - SVG and vanilla JS handle packets and dynamic topology. Preserve keyboard controls and accessible text status.
 - Keep burst-mode behaviour deterministic and graceful, including packet concurrency, autoscale activation, and proper cleanup.
@@ -25,6 +25,6 @@ A one-page personal portfolio at afroz.co.uk with a polished, interactive "livin
 
 ## Future enhancements, not V1 blockers
 
-- Add an optional fault-injection scenario and retry / dead-letter queue.
+- Fault scenarios and retry / dead-letter routing exist in V1.2; preserve the 200, 403, 429 and 503 paths, their counters and outcomes.
 - Add a real request/event trace backend **only** if and when actual infrastructure is desired.
 - Replace draft biography and contact address with user-approved content.
