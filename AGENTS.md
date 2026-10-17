@@ -1,30 +1,29 @@
-# Codex guidance for this repository
+# Codex guide — Cloud Cortex
 
 ## Goal
 
-A one-page personal portfolio at afroz.co.uk with a polished, interactive "living cloud brain" demo and genuinely personal editorial sections. The architecture animation is a **simulation**, not a real production cloud. Never claim requests are truly sent to an external backend.
+A refined, static, single-page portfolio for afroz.co.uk. The interactive SVG is an **illustrative browser simulation**, not a live production cloud. Avoid representing simulated transactions or metrics as real.
 
-## Constraints
+## Principles
 
-- Keep it a **static site** for Netlify or GitHub Pages. No bundler, framework, npm dependencies, APIs, telemetry or credentials unless explicitly approved.
-- Preserve the scrolling brain-to-architecture reveal, leaving a faint brain projection behind the network, including immediate reveal on request and a reduced-motion static fallback.
-- Maintain a dark restrained visual language: navy background, muted cyan/teal lines, mint success cues and refined typography.
-- SVG and vanilla JS handle packets and dynamic topology. Preserve keyboard controls and accessible text status.
-- Keep burst-mode behaviour deterministic and graceful, including packet concurrency, autoscale activation, and proper cleanup.
-- Honour `prefers-reduced-motion`; avoid autoplaying an overwhelming animation.
-- Mobile should have an intentionally laid-out architecture, not illegible scaled-down desktop labels.
-- Avoid inventing facts about Afroz's education, employers, experience, or achievements. Story sections are intentionally placeholders until facts are provided.
+- No framework, build system, backend, analytics, network dependencies or secrets unless explicitly requested.
+- Keep the visual system restrained: dark navy, muted teal pathways, mint success; warm amber retry and soft red failure.
+- Preserve the brain-to-architecture scroll reveal **and the faint brain projection after reveal**, including reduced-motion fallback.
+- **Do not reintroduce node-bottom meters/underlines** or always-animated wires and decorative blinking across all boxes. Only active request routes should have strong movement.
+- All statuses must be sampled *per request*. Do not add a status selector. Current outcome weights: 60% direct 200, 10% retry-recovered 200, 10% 403, 10% 429, 10% 503; 70% eventual success, 30% eventual failure.
+- Burst traffic uses independently sampled results and temporarily scales API replicas from one to three. Keep counters, queue depth and event stream accurate, even for failures and retries.
+- Honour `prefers-reduced-motion`; support keyboard interaction and live textual feedback.
+- Layout the architecture intentionally for mobile; avoid horizontal overflow, clipped labels, or a tiny desktop diagram.
+- Don't invent personal history, companies, education or awards. Draft text remains placeholders until the owner provides the facts.
 
-## Verify each change
+## Repository arrangement
 
-1. `node --check script.js`
-2. Open at desktop and mobile widths; ensure no horizontal overflow, cut-off nodes, or overlapping text.
-3. Click once: should finish at green **200 OK** with `sent = completed = 1` and `in flight = queue = 0`.
-4. Click 5× quickly: count five, activate 3 API replicas while busy, then settle back to one.
-5. Test keyboard navigation and reduced-motion behaviour.
+The deployed public GitHub repository currently stores a self-contained `index.html` (inline CSS, JS and SVG). A separate modular source archive is maintained in the ChatGPT development handoff. If migrating the repository to modular files, commit every dependency together and confirm the root `index.html` still loads on Netlify/GitHub Pages without a build step.
 
-## Future enhancements, not V1 blockers
+## Verify each iteration
 
-- Fault scenarios and retry / dead-letter routing exist in V1.2; preserve the 200, 403, 429 and 503 paths, their counters and outcomes.
-- Add a real request/event trace backend **only** if and when actual infrastructure is desired.
-- Replace draft biography and contact address with user-approved content.
+- Check syntax and browser console for JavaScript errors.
+- Test deterministic probability boundaries by temporarily overriding `Math.random` in browser tests: .12 → direct 200; .65 → recovered 200; .75 → 403; .85 → 429; .95 → 503.
+- Test five rapid requests for autoscale expansion and final scale-down, and ensure in-flight / queue return to zero.
+- Check 1440px and 390px layouts, reduced motion, scrolling reveal and absence of bottom node meters.
+- Keep documentation consistent with the current implementation.
