@@ -1,30 +1,30 @@
 # Cloud Cortex · afroz.co.uk
 
-A bespoke, responsive static portfolio centred on a **living cloud-brain animation**. The architecture, packets, metrics, error codes and scaling are **browser-side simulations**, not production cloud traffic.
+A bespoke, responsive one-page personal portfolio with a scroll-revealed **living cloud-brain** architecture. Its packets, routing, failures, metrics and autoscaling are **browser-side simulations**, not real infrastructure or production requests.
 
-## Run
+## Run and deploy
 
-Open `index.html` directly or serve the repository root using `python3 -m http.server 8000`. No build step, npm or secrets required. Deploy the repository root on Netlify or GitHub Pages, then configure your IONOS domain separately.
+Open `index.html` in a browser or serve the repository root with `python3 -m http.server 8000`. No build system, frameworks, network calls, npm packages, API tokens or credentials are needed. Deploy the root to Netlify or GitHub Pages; configure the IONOS domain separately.
 
-## V1.2 interactions
+The public repository currently serves a **self-contained `index.html`** containing the stylesheet, JavaScript and inline SVG assets. A modular source package (separate HTML/CSS/JS/assets and Playwright smoke tests) is also available from the ChatGPT development conversation.
 
-- **Scroll reveal:** the initial neural image dissolves, leaving a very faint projected brain behind the interactive SVG map.
-- **Send a request:** follow a successful request through WAF → rate limiter → load balancer → gateway → identity → selected API replica → Redis cache → message queue → worker → a data shard → WebSocket → 200 OK.
-- **Try a 5× burst:** five concurrent simulated requests fan out across three API replicas. Four finish successfully (one after recovering from a transient worker failure); one exhausts its retries and ends at 503 after entering a dead-letter queue. Capacity returns to one replica when idle.
-- **Scenario picker:** choose Healthy (200), Security blocked (403), Rate limited (429), Retry and recover (200), or Service failure (503). Outcomes are deterministic, not randomized.
-- **Living nodes:** understated idle heartbeats; temporary activity, retry and error highlights; counters for requests, successes, failures, in-flight, queue, retries, and replicas; plus a recent event stream.
-- **Responsive and accessible:** separate mobile node coordinates, accessible buttons and select, textual live trace, reduced-motion support.
+## V1.3 — Less noise, more meaningful activity
 
-Components shown include WAF, limiter, load balancer, API gateway, identity, API replicas, Redis, queue, worker, retry policy, dead-letter queue, three data shards, WebSocket, telemetry and autoscaler. Not every component is on every transaction path. This is an explorable metaphor, not an endorsed production architecture.
+- **Brain projection:** the scroll reveal dissolves the main brain graphic while retaining a quiet neural projection behind the cloud topology. Running a request reveals the diagram immediately.
+- **Clean nodes:** removed the small bars below every component (which appeared as underlines), and reduced ambient twinkling and wire movement. Request packets and activated paths take priority.
+- **Random outcomes:** every button press samples an outcome independently; there is no dropdown for choosing a status.
+  - 60%: first-try success, 200 OK.
+  - 10%: transient worker error, retry, then 200 OK.
+  - 10%: edge security rejection, 403.
+  - 10%: quota/rate-limit rejection, 429.
+  - 10%: worker failure after retries, dead-letter queue, 503.
+- **Expected totals:** 70% eventual success and 30% failure over many requests. A five-click burst is *not* guaranteed to contain a particular mixture.
+- **Scaling:** a burst activates three API replicas; once traffic settles, replicas return to one.
+- **Visibility:** event stream, recent result, in-flight count, queue depth, failures, retries and active replicas.
+- **Responsive and accessible:** intentional mobile layout, semantic buttons, textual trace and reduced-motion support.
 
-## Files
+The diagram includes WAF, rate limiter, load balancer, API gateway, identity, API replicas, Redis, messaging queue, worker pool, retry policy, dead-letter queue, three sharded databases, WebSocket, telemetry and autoscaler. Not every request visits every component.
 
-- `index.html` — page layout, controls, metadata (favicon currently embedded as a small SVG)
-- `styles.css` — colours, responsive layout, effects
-- `script.js` — SVG topology, deterministic simulation and counters
-- `assets/brain.svg` — custom neural artwork
-- `AGENTS.md` — Codex guidelines
+## Before publishing the personal site
 
-## Before public portfolio launch
-
-The biography, story sections and `hello@afroz.co.uk` are placeholders. Replace them with confirmed information before sharing widely. Copyright © Afroz; all rights reserved until a license is chosen.
+Replace the placeholder biographical details and `hello@afroz.co.uk` with approved real information. Do not present the architecture as a real system or claim particular professional achievements without confirmation.
