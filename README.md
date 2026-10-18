@@ -15,7 +15,7 @@ A bespoke, responsive, static portfolio built around an interactive **living clo
 
 Open `index.html` or serve the directory with `python3 -m http.server 8000`. Hosting on Netlify or GitHub Pages requires only serving this repository's root. Domain DNS at IONOS can be configured after the personal copy is finalised.
 
-Files: `index.html`, `styles.css`, `script.js`, `assets/brain.svg`, `assets/favicon.svg`, and `tests/v16_check.py` / `tests/v16_zoom_smoke.py`. To run browser smoke tests, install Playwright with Chromium and run the tests from the repository root.
+Files: `index.html`, `styles.css`, `script.js`, `assets/brain.svg`, `assets/favicon.svg`, and `tests/v16_check.py` / `tests/v16_transactions.py`. To run browser smoke tests, install Playwright with Chromium and run the tests from the repository root.
 
 ## Before launch
 
