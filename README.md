@@ -1,22 +1,36 @@
 # Cloud Cortex · afroz.co.uk
 
-A bespoke, responsive, static portfolio built around an interactive **living cloud-brain**. All requests, traffic, metric values, failures and autoscaling are **simulated locally in the browser**; no production infrastructure is involved.
+A responsive, dependency-free, single-page portfolio with a scroll-revealed living brain and an **illustrative cloud architecture simulation**. Packets, error codes, scaling, node states, metrics and paths are simulated locally in the browser; no production backend is contacted.
 
-## V1.6: Semantic zoom + fixed inspector controls
+## Getting started
 
-- **Three detail levels:** `− / +` controls and desktop mouse-wheel zoom inside the SVG switch between **Overview** (7 connected architectural domains), **System** (23 interactive nodes and live animated request packets), and **Deep dive** (15 internal engineering decisions such as idempotency, outbox, retries, circuit breakers, sharding and client replay). This is *semantic zoom* rather than simply enlarging text. The brain projection stays behind the architecture at every depth.
-- **Wheel behaviour:** only scrolling directly over the architecture changes depth. At the highest or lowest level the document scrolls normally. Zooming is disabled while a request is in flight to preserve the visible trace. Mobile uses large `− / +` controls and keeps vertical page scrolling natural.
-- **Inspector:** title, current state and the close button stay **fixed inside the card**; only the technical explanation scrolls. It applies to both the existing 23 nodes and the 7+15 semantic nodes. The inspector has keyboard support, Escape-to-close and an independent scroll surface.
-- **Transactions:** sending a new request from Overview or Deep dive returns to System so packet routes stay visible. Request outcomes remain independent draws: 60% immediate 200, 10% recovered 200, 10% blocked 403, 10% limited 429, and 10% unavailable 503; 70% success / 30% error in expectation over many requests.
-- **Elastic API nodes:** load grows from 1 → 2 → 3 instances, with the first box moving upward, later replicas fading in, and reverse scaling after cooldown.
-- **Accessible defaults:** static assets; no frameworks or build process; reduced-motion rules; meaningful aria labels; keyboard-operable depth buttons and nodes; mobile-specific diagram compositions.
+Open `index.html` in a modern browser, or serve the repository root with `python3 -m http.server 8000`. No build step, npm packages or environment secrets. Deploy the repository root on Netlify or GitHub Pages once you're ready to launch; the IONOS domain can be connected separately.
 
-## Running
+## V1.7 — one request, three perspectives
 
-Open `index.html` or serve the directory with `python3 -m http.server 8000`. Hosting on Netlify or GitHub Pages requires only serving this repository's root. Domain DNS at IONOS can be configured after the personal copy is finalised.
+- **Overview:** a transaction animates through high-level domains (trust boundary, routing, compute, asynchronous processing, data and, for recoverable faults, resilience).
+- **System:** the detailed WAF → limiter → balancer → gateway → auth → stateless API replica → cache → queue → worker → sharded data → WebSocket trace continues unchanged.
+- **Deep Dive:** the same request is projected over engineering concepts such as request context, policy, idempotency, handler, cache strategy, outbox, message broker, worker, retry controls, shard routing and notification. This is a **conceptual projection**; the diagram is educational, not a claim that each pattern is running in real infrastructure.
+- **No forced zoom reset:** start a transaction at any level. Zoom in/out using the +/- controls or the wheel over the SVG on desktop while it runs. The same request ID and outcome are preserved; no resampling or restart.
+- **Independent concurrent requests:** a five-request burst is visible at all depths while System continues to simulate 1 → 2 → 3 → 1 API replicas as traffic increases and settles.
+- **Visible results:** success, retries and failure signals appear as a colour change and brief status on the signal, with the outcome in the event feed and the result metric.
+- **Node inspector:** click a node for a technical explanation; its title/status/close controls remain visible while the explanatory text scrolls.
+- **Accessibility:** keyboard-operable controls, textual status and event stream, reduced-motion support and deliberately laid-out mobile diagrams.
 
-Files: `index.html`, `styles.css`, `script.js`, `assets/brain.svg`, `assets/favicon.svg`, and `tests/v16_check.py` / `tests/v16_transactions.py`. To run browser smoke tests, install Playwright with Chromium and run the tests from the repository root.
+Outcome sampling is independent per request: 60% direct 200, 10% 200 after recovery, 10% 403, 10% 429 and 10% 503. This yields an *expected* 70% eventual success and 30% failure, not a guaranteed ratio in a small burst.
 
-## Before launch
+## Source files
 
-The biographical sections and `hello@afroz.co.uk` are still placeholders. Replace them with verified personal details and a confirmed address before promoting the site. No analytics, tracking, external API calls or real cloud infrastructure are used.
+- `index.html` — page structure, metadata and interactive panels
+- `styles.css` — responsive visual system, motion and states
+- `script.js` — shared simulation engine, semantic projections, node inspector, autoscaling
+- `assets/brain.svg` and `assets/favicon.svg` — original vector assets
+- `tests/v17_check.py` — desktop/mobile, in-flight zoom, errors and scaling smoke tests
+- `tests/v17_outcomes.py` — deterministic sampling boundaries exercised in each view
+- `AGENTS.md` — guidelines for iterative work with Codex
+
+Run `node --check script.js`. Browser tests use Playwright and an available Chromium binary; they are optional development dependencies, not part of the deployed site.
+
+## Before public launch
+
+Replace draft biography content and the placeholder `hello@afroz.co.uk` address with user-confirmed details. Do not present the architecture as a live cloud deployment or claim it runs real transactions.

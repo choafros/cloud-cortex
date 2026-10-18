@@ -1,4 +1,4 @@
-/* Cloud Cortex V1.5 — independently sampled outcomes, browser-only simulation. No network calls. */
+/* Cloud Cortex V1.7 — one simulated request engine projected into three synchronized semantic views. No network calls. */
 (() => {
   'use strict';
   const NS = 'http://www.w3.org/2000/svg';
@@ -147,7 +147,7 @@
   };
   const metrics={sent:$('metric-sent'),completed:$('metric-completed'),failed:$('metric-failed'),flight:$('metric-flight'),queue:$('metric-queue'),replicas:$('metric-replicas'),result:$('metric-result'),retried:$('metric-retried')};
   const state={nextId:0,completed:0,failed:0,retried:0,inFlight:0,queueDepth:0,replicas:1,desiredReplicas:1,apiAPosition:null,scaleTransitioning:false,selectedNode:null,
-    recentClicks:[],scaleHoldUntil:0,nodes:new Map(),nodeStates:new Map(),paths:new Map(),activeWires:new Map(),mobile:mobileMedia.matches,resizePending:false,zoomLevel:1,semanticNodes:new Map()};
+    recentClicks:[],scaleHoldUntil:0,nodes:new Map(),nodeStates:new Map(),paths:new Map(),activeWires:new Map(),mobile:mobileMedia.matches,resizePending:false,zoomLevel:1,semanticNodes:new Map(),liveRequests:new Map()};
   let scaleResetTimeout;
   function el(tag,attrs={},text){const node=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attrs))node.setAttribute(k,String(v));if(text!==undefined)node.textContent=text;return node;}
   function clear(layer){layer.replaceChildren();}
@@ -240,6 +240,100 @@
     refreshReplicaWires();
     if(state.selectedNode)highlightSelection();
   }
+  // Each simulated transaction has ONE lifecycle and ONE sampled outcome.  The
+  // alternative diagrams project the same progress; switching detail levels does
+  // not restart requests, resample their outcomes or alter their request IDs.
+  const scenarioSteps={healthy:12,recovered:14,blocked:2,throttled:3,outage:14};
+  function semanticRoute(level,scenario,shardIndex){
+    if(level==='overview'){
+      if(scenario==='blocked'||scenario==='throttled')return ['edge'];
+      const base=['edge','routing','compute','events'];
+      if(scenario==='recovered'||scenario==='outage')base.push('resilience');
+      if(scenario==='outage')return base;
+      if(scenario==='recovered')base.push('events');
+      return [...base,'data'];
+    }
+    const route=['ingress','policy'];
+    if(scenario==='blocked'||scenario==='throttled')return route;
+    route.push('mutex','api','cachePolicy','outbox','broker','consumer');
+    if(scenario==='recovered'||scenario==='outage')route.push('breaker','budget');
+    if(scenario==='outage')return [...route,'isolate'];
+    if(scenario==='recovered')route.push('consumer');
+    return [...route,'router',shardIndex===0?'shard1':'shard2','push'];
+  }
+  function tracePath(level,route){
+    const positions=semanticViews[level][state.mobile?'mobile':'desktop'];
+    return route.map((id,i)=>`${i?'L':'M'} ${positions[id][0]} ${positions[id][1]}`).join(' ');
+  }
+  function createProjection(request,level){
+    const parent=$(level+'-layer'),route=semanticRoute(level,request.scenario,request.shardIndex);
+    const path=el('path',{d:tracePath(level,route),class:'live-route', 'aria-hidden':'true'});
+    const trail=el('path',{d:path.getAttribute('d'),class:'live-route-progress','aria-hidden':'true'});
+    const dot=el('g',{class:'semantic-packet','aria-hidden':'true','data-live-request':request.id});
+    dot.append(el('circle',{class:'semantic-packet-halo',r:14}));
+    dot.append(el('circle',{class:'semantic-packet-core',r:5}));
+    dot.append(el('text',{class:'semantic-packet-label',x:13,y:-13},`#${pad(request.id)}`));
+    parent.append(path,trail,dot);
+    const total=Math.max(0.001,path.getTotalLength());
+    request.projections[level]={route,path,trail,dot,total,activeNode:null};
+    updateProjection(request,level);
+  }
+  function updateProjection(request,level){
+    const p=request.projections[level];if(!p)return;
+    const progress=Math.max(0,Math.min(1,request.progress));
+    const distance=p.total*progress,point=p.path.getPointAtLength(distance);
+    p.dot.setAttribute('transform',`translate(${point.x.toFixed(2)} ${point.y.toFixed(2)})`);
+    const tail=Math.min(distance,62);
+    p.trail.style.strokeDasharray=`${tail} ${p.total+8}`;
+    p.trail.style.strokeDashoffset=String(-(distance-tail));
+    p.dot.classList.toggle('is-failure',request.terminalCode!==null&&request.terminalCode!==200);
+    p.dot.classList.toggle('is-retry',request.retrying&&request.terminalCode===null);
+    const current=p.route[Math.min(p.route.length-1,Math.floor(progress*(p.route.length-1)+.25))];
+    p.activeNode=current;
+  }
+  function refreshSemanticActivity(){
+    const active=new Map();
+    for(const req of state.liveRequests.values()){
+      for(const level of ['overview','deep']){
+        const p=req.projections[level];if(!p)continue;
+        const key=`${level}:${p.activeNode}`;
+        const value=req.terminalCode!==null?(req.terminalCode===200?'success':'failed'):(req.retrying?'retry':'active');
+        const current=active.get(key);
+        if(!current||value==='failed'||(value==='retry'&&current!=='failed'))active.set(key,value);
+      }
+    }
+    for(const [key,node] of state.semanticNodes){
+      const value=active.get(key)||'idle';
+      if(node.dataset.state!==value){node.dataset.state=value;node.classList.toggle('is-signalled',value!=='idle');node.classList.toggle('is-retry',value==='retry');node.classList.toggle('is-failed',value==='failed');node.classList.toggle('is-complete',value==='success');}
+    }
+    updateInspectorState();
+  }
+  function updateRequestProgress(request,progress){
+    request.progress=progress;
+    for(const level of ['overview','deep'])updateProjection(request,level);
+    const now=performance.now();
+    if(now-(request.lastSignal||0)>70||progress===1){request.lastSignal=now;refreshSemanticActivity();}
+  }
+  function startProjectedRequest(id,scenario,shardIndex){
+    const request={id,scenario,shardIndex,progress:0,step:0,total:scenarioSteps[scenario],terminalCode:null,retrying:false,projections:{},lastSignal:0};
+    state.liveRequests.set(id,request);
+    createProjection(request,'overview');createProjection(request,'deep');
+    refreshSemanticActivity();return request;
+  }
+  function finishProjectedRequest(request,code){
+    request.terminalCode=code;request.retrying=false;
+    updateRequestProgress(request,1);refreshSemanticActivity();
+    for(const p of Object.values(request.projections)){
+      p.dot.classList.add('is-settled');
+      const tag=p.dot.querySelector('.semantic-packet-label');
+      if(tag)tag.textContent=`#${pad(request.id)} · ${code}`;
+    }
+    setTimeout(()=>{
+      if(state.liveRequests.get(request.id)!==request)return;
+      for(const p of Object.values(request.projections)){p.dot.remove();p.trail.remove();p.path.remove();}
+      state.liveRequests.delete(request.id);refreshSemanticActivity();
+    },reducedMotion.matches?160:1200);
+  }
   function renderSemanticViews(){
     state.semanticNodes.clear();
     for(const level of ['overview','deep']){
@@ -262,7 +356,10 @@
         layer.append(group);state.semanticNodes.set(key,group);
       }
     }
-    updateZoomUI();
+    for(const req of state.liveRequests.values()){
+      req.projections={};createProjection(req,'overview');createProjection(req,'deep');
+    }
+    refreshSemanticActivity();updateZoomUI();
   }
   function updateZoomUI(){
     const level=zoomLevels[state.zoomLevel];
@@ -271,6 +368,7 @@
     $('zoom-current').textContent=level==='overview'?'OVERVIEW':level==='deep'?'DEEP DIVE':'SYSTEM';
     $('zoom-out').disabled=state.zoomLevel===0;
     $('zoom-in').disabled=state.zoomLevel===2;
+    $('zoom-live').textContent=state.inFlight?`${state.inFlight} LIVE · SAME REQUESTS`:'ONE REQUEST · THREE PERSPECTIVES';
     for(const name of ['overview','deep']) $(name+'-layer').setAttribute('aria-hidden',level===name?'false':'true');
     layers.nodes.setAttribute('aria-hidden',level==='system'?'false':'true');
     // Hide inactive layouts from keyboard, including unmounted replicas.
@@ -280,7 +378,6 @@
   function setZoomLevel(value){
     const target=Math.max(0,Math.min(2,value));
     if(target===state.zoomLevel)return;
-    if(state.inFlight>0){setTrace('Wait for the current trace to finish before changing the architecture depth.');return;}
     if(!$('node-inspector').hidden)closeInspector({focus:false});
     state.zoomLevel=target;openCortex();updateZoomUI();
     const info={overview:'Overview · seven connected architectural domains.',system:'System · 23 interactive infrastructure nodes.',deep:'Deep dive · 15 internal engineering decisions.'};
@@ -292,7 +389,7 @@
   svg.addEventListener('wheel',event=>{
     // Only the diagram itself captures wheel input. The document is free to scroll
     // beyond the first or last level. Inspector scrolling is always independent.
-    if(Math.abs(event.deltaY)<5||state.inFlight>0)return;
+    if(Math.abs(event.deltaY)<5)return;
     const direction=event.deltaY>0?1:-1;
     const target=Math.min(2,Math.max(0,state.zoomLevel+direction));
     if(target===state.zoomLevel)return;
@@ -395,8 +492,10 @@
     if(!state.selectedNode || $('node-inspector').hidden)return;
     const id=state.selectedNode;
     if(id.includes(':')){
-      $('inspector-state').textContent=id.startsWith('overview:')?'OVERVIEW':'DESIGN';
-      $('inspector-state').dataset.state='idle';return;
+      const value=state.semanticNodes.get(id)?.dataset.state||'idle';
+      const status=value==='idle'?(id.startsWith('overview:')?'OVERVIEW':'DESIGN'):value.toUpperCase();
+      $('inspector-state').textContent=status;
+      $('inspector-state').dataset.state=value;return;
     }
     const node=state.nodes.get(id);
     if(!node)return;
@@ -497,15 +596,15 @@
     group.append(el('text',{class:'packet-tag',x:10,y:-10},`#${pad(id)}`));
     layers.packets.append(group);return group;
   }
-  function tweenWire(from,to,packet,duration){
-    const path=state.paths.get(`${from}->${to}`);
-    if(!path)throw Error(`Missing architecture link ${from} -> ${to}`);
+  function tweenWire(from,to,packet,duration,request){
+    const path=state.paths.get(`${from}->${to}`);    if(!path)throw Error(`Missing architecture link ${from} -> ${to}`);
     const key=`${from}->${to}`;lightWire(key,true);
     const length=path.getTotalLength(),d=reducedMotion.matches?28:duration;
     return new Promise(resolve=>{
       const start=performance.now();
       function tick(now){const p=Math.min(1,(now-start)/d),ease=p*p*(3-2*p),pos=path.getPointAtLength(length*ease);
         packet.setAttribute('transform',`translate(${pos.x.toFixed(2)} ${pos.y.toFixed(2)})`);
+        updateRequestProgress(request,(request.step+p)/request.total);
         if(p<1)requestAnimationFrame(tick);else{lightWire(key,false);resolve();}
       }
       requestAnimationFrame(tick);
@@ -538,6 +637,8 @@
     const description=`#${pad(id)} · ${status} ${reason}`;
     addEvent(failure?'error':'success',String(status),description);
     setTrace(description+(status===503?' · Job placed in the dead-letter queue.':status===403?' · Blocked at the edge.':status===429?' · Rate limit enforced.':' · Trace complete.'));
+    const projected=state.liveRequests.get(id);
+    if(projected)finishProjectedRequest(projected,status);
     activate('metrics',620);refreshMetrics();
   }
   // Final outcomes: 70% successful (60% direct + 10% recovered), 30% unsuccessful.
@@ -552,19 +653,22 @@
   async function runRequest(){
     const scenario=sampleScenario();
     if(state.inFlight>=15){setTrace('Traffic guard: maximum 15 simulated requests in flight.');return;}
-    if(state.zoomLevel!==1)setZoomLevel(1);
     openCortex();clearTimeout(scaleResetTimeout);
     const now=Date.now();state.recentClicks=state.recentClicks.filter(ts=>now-ts<1600);state.recentClicks.push(now);
     const id=++state.nextId;state.inFlight++;
     if(state.recentClicks.length>=3||state.inFlight>=3)scaleUp();
     else if(state.replicas===1)setStatus('PROCESSING');
-    refreshMetrics();
+    refreshMetrics();updateZoomUI();
     if(state.inFlight<3)setTrace(`#${pad(id)}  →  Request entering the edge · outcome sampled.`);
     const packet=makePacket(id),[x,y]=position('client');packet.setAttribute('transform',`translate(${x} ${y})`);
+    const request=startProjectedRequest(id,scenario,(id-1)%3);
     activate('client');
     let queued=false;
     async function go(from,to,duration=285,type='active'){
-      await tweenWire(from,to,packet,duration);activate(to,type==='error'?1100:620,type);stageMessage(id,to);
+      await tweenWire(from,to,packet,duration,request);request.step++;
+      if(type==='retry')request.retrying=true;
+      else if(type==='error')request.retrying=false;
+      activate(to,type==='error'?1100:620,type);stageMessage(id,to);
     }
     try{
       await go('client','waf');
@@ -591,7 +695,7 @@
           markPacket(packet,'error');activate('worker',1800,'error');await go('retry','dlq',440,'error');await go('dlq','failed',350,'error');
           result(id,503,'UNAVAILABLE');return;
         }
-        await go('retry','worker',325,'retry');markPacket(packet,'healthy');
+        await go('retry','worker',325,'retry');markPacket(packet,'healthy');request.retrying=false;
       }
       await go('worker',shard,345);await go(shard,'ws',400);await go('ws','success',340,'success');
       result(id,200,scenario==='recovered'?'OK · RECOVERED':'OK');
@@ -600,7 +704,7 @@
       result(id,500,'SIMULATION ERROR');
     }finally{
       if(queued)state.queueDepth=Math.max(0,state.queueDepth-1);
-      packet.remove();state.inFlight=Math.max(0,state.inFlight-1);refreshMetrics();
+      packet.remove();state.inFlight=Math.max(0,state.inFlight-1);refreshMetrics();updateZoomUI();
       if(state.inFlight===0){
         if(state.resizePending){state.resizePending=false;renderDiagram();}
         if(state.replicas>1||state.desiredReplicas>1||state.scaleTransitioning)maybeScaleDown();

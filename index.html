@@ -44,7 +44,7 @@
 
       <div class="system-shell" aria-labelledby="diagram-title">
         <div class="system-toolbar">
-          <div class="toolbar-title"><span class="toolbar-tag">01 / INTERACTIVE SYSTEM</span><h2 id="diagram-title">The living architecture <span class="title-beta">V1.6</span></h2></div>
+          <div class="toolbar-title"><span class="toolbar-tag">01 / INTERACTIVE SYSTEM</span><h2 id="diagram-title">The living architecture <span class="title-beta">V1.7</span></h2></div>
           <div class="toolbar-right"><span class="outcome-odds" title="Independently sampled simulated outcomes: 60% direct success, 10% recovered success, 10% security rejection, 10% rate limited, 10% unavailable">70% SUCCESS <span aria-hidden="true">/</span> 30% FAILURE</span><div class="toolbar-meta"><span class="system-state"><span class="heartbeat" aria-hidden="true"></span><span id="system-status">SYSTEM IDLE</span></span><span class="toolbar-divider"></span><span>SIMULATED ENVIRONMENT</span></div></div>
         </div>
 
@@ -60,7 +60,8 @@
             <button type="button" id="zoom-out" class="zoom-step" aria-label="Zoom out to a higher-level architecture view" title="Zoom out">−</button>
             <span id="zoom-current" class="zoom-current" role="status" aria-live="polite">SYSTEM</span>
             <button type="button" id="zoom-in" class="zoom-step" aria-label="Zoom in to reveal internal infrastructure details" title="Zoom in">+</button>
-            <span class="zoom-hint">SCROLL OVER BRAIN TO ZOOM</span>
+            <span class="zoom-hint">SCROLL TO CHANGE DEPTH</span>
+            <span id="zoom-live" class="zoom-live" role="status" aria-live="polite">ONE REQUEST · THREE PERSPECTIVES</span>
           </div>
           <img class="brain-projection" src="assets/brain.svg" width="670" height="393" alt="" aria-hidden="true">
           <div class="cortex-veil" id="cortex-veil" aria-hidden="true">
@@ -70,7 +71,7 @@
             <div class="veil-copy"><strong>A system of decisions.</strong><span>A thousand quiet connections. One response.</span></div>
             <div class="veil-scroll">SCROLL TO REVEAL THE ARCHITECTURE <span>↓</span></div>
           </div>
-          <svg id="architecture" viewBox="0 0 1500 750" data-view="system" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Interactive cloud architecture. Zoom out for domains, view the working transaction, or zoom in for detailed engineering decisions. Select nodes for explanations." xmlns="http://www.w3.org/2000/svg">
+          <svg id="architecture" viewBox="0 0 1500 750" data-view="system" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Interactive cloud architecture. Zoom out for domains or zoom in for detailed engineering decisions. Requests remain animated and synchronized at every level. Select nodes for explanations." xmlns="http://www.w3.org/2000/svg">
             <defs>
               <radialGradient id="ambient-glow"><stop stop-color="#387e8b" stop-opacity=".24"/><stop offset="1" stop-color="#387e8b" stop-opacity="0"/></radialGradient>
               <filter id="packet-glow" x="-250%" y="-250%" width="600%" height="600%"><feGaussianBlur stdDeviation="5"/></filter>

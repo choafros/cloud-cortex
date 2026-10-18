@@ -1,21 +1,30 @@
-# Codex notes — Cloud Cortex
+# Cloud Cortex — Codex guidance
 
-## Intent
+## Purpose
 
-A performant, polished one-page portfolio for `afroz.co.uk` with a locally simulated infrastructure. **Never claim the browser animation drives real cloud services.** Keep HTML/CSS/SVG/vanilla JavaScript without dependencies, bundlers or secrets unless the owner approves a bigger project.
+A thoughtful, static one-page personal portfolio at afroz.co.uk. Its living cloud brain is a **browser-only educational simulation**. Never describe the animated requests, metrics or scaling as actual cloud traffic.
 
-## V1.6 contracts
+## Stack and deployment
 
-- Preserve the faint brain projection behind the infrastructure, the initial scroll-to-reveal, the on-canvas Send request + 5× burst controls, and the 1 → 2 → 3 → 1 API autoscaling choreography.
-- Three semantic zoom levels: `overview`, `system`, `deep`. Clicking `− / +` changes one level; wheel over the SVG changes one level with a debounce and allows normal page scroll at limits. Overview represents 7 domains; System has 23 real simulation nodes; Deep dive has 15 detailed design boxes. Use accessible keyboard-operated controls, and do not make page scrolling difficult on mobile.
-- Semantic layers are illustrative design diagrams. When a request begins, switch to System so the existing packet animation is always visible. Do not leave hidden SVG elements tabbable. If a zoom change would interrupt active transactions, defer/disallow it with visible feedback.
-- The inspector's title, state and close button **must remain visible** while the long explanation scrolls in `.inspector-scroll`. Both desktop and mobile should have internally scrollable cards; the header should not move. Opening a different node resets the scroll position. Close via button or Escape; restore focus when practical.
-- Preserve 70% expected success (60% direct and 10% after retry) and 30% failure (10% 403, 10% 429, 10% 503) independently sampled per request; do not add a user-operated error selector.
-- Keep node states and overlapping request accounting accurate. Avoid underlined node meters or excessive idle animations. Honor `prefers-reduced-motion` and avoid horizontal page overflow.
-- Do not invent biography, credentials, employers, education or awards. Replace placeholders only when approved by the owner.
+Keep source in HTML/CSS/SVG/vanilla JS and static-deployable via GitHub Pages or Netlify. Avoid introducing build tooling, a backend, dependencies, secrets, analytics or external network calls without explicit approval. Keep `index.html`, `styles.css`, `script.js` and vector assets in the repo root / `assets`.
 
-## Verify
+## Nonnegotiable behaviour
 
-- `node --check script.js`
-- Run `python tests/v16_check.py` and `python tests/v16_transactions.py` with Playwright and Chromium available. Test 390px and 1440px viewports, scrollable inspector heading, all semantic zoom nodes, five-click scaling and recovery, and console errors.
-- Check wheel zoom with the pointer over the diagram and natural page scroll elsewhere. Verify keyboard focus and reduced-motion mode.
+- Three semantic depth levels: Overview (7 domains), System (23 nodes) and Deep Dive (15 design concepts).
+- **Every level must show active transactions.** Use a single shared request engine and preserve request IDs, progress and outcomes when switching levels mid-flight. Do not force requests back to System or disable zoom while active.
+- Render semantic-level animations as conceptual mappings of *the same* simulation, not unrelated replays. Failures and retries should be visible and explainable at every depth.
+- Per-request weighted outcomes: 60% direct 200, 10% recovered 200, 10% 403, 10% 429 and 10% 503. Do not restore a scenario dropdown. Burst outcomes remain independently sampled.
+- Preserve elastic API instances 1 → 2 → 3 → 1 at System depth; maintain accurate concurrent metrics, queue depth and event stream.
+- Preserve the subtle brain projection after scroll reveal, gentle motion, clearly visible active nodes, and **short signal trails** that do not underline or obscure labels.
+- Keep the in-diagram Send request and 5× burst controls, the independently scrolling inspector with fixed name/status/close controls, and keyboard accessibility.
+- Reduced-motion mode must remain readable and functional; mobile architecture must remain composed and free of horizontal overflow. Wheel zoom should capture only appropriate input over the diagram.
+- Personal biography and contact details are placeholders until confirmed. Avoid fictional employers, qualifications or achievements.
+
+## Verification
+
+1. `node --check script.js`
+2. Run `python tests/v17_check.py` and `python tests/v17_outcomes.py` where Chromium + Playwright are available.
+3. At desktop and mobile sizes, start a request in Overview, zoom into System/Deep **while it runs**, and confirm its ID and progress continue rather than resetting.
+4. Test first-try success, retry recovery, 403, 429 and 503. Make sure the semantic packet and result styling match the sampled outcome.
+5. Test five concurrent clicks for scaling, completion and cleanup; check no JavaScript errors, overflow, obscured labels or lost inspector controls.
+6. Keep README documentation aligned to the actual implementation.

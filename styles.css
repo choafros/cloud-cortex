@@ -236,3 +236,29 @@ body::before{right:0;width:min(1100px,100vw)}
 .diagram-wrap[data-zoom="overview"] .diagram-corner-label,
 .diagram-wrap[data-zoom="deep"] .diagram-corner-label{opacity:0}
 @media(max-width:760px){.semantic-title{font-size:15px}}
+
+/* V1.7: visualised request continuity at every semantic depth. */
+.zoom-live{font:700 8px ui-monospace,monospace;letter-spacing:.045em;color:#81b6aa;white-space:nowrap;margin:0 2px}
+.live-route{fill:none;stroke:#68aaa1;stroke-width:2;stroke-dasharray:3 11;opacity:.17;pointer-events:none}
+.live-route-progress{fill:none;stroke:#afe9d9;stroke-width:3.3;opacity:.66;stroke-linecap:round;pointer-events:none;filter:drop-shadow(0 0 5px rgba(146,242,211,.4))}
+.semantic-packet{pointer-events:none;filter:drop-shadow(0 0 7px rgba(154,237,213,.55))}
+.semantic-packet-halo{fill:#6ee0c5;opacity:.25}.semantic-packet-core{fill:#e2fff2;stroke:#64b8ad;stroke-width:1}
+.semantic-packet-label{font:700 11px ui-monospace,monospace;fill:#def9f0;paint-order:stroke;stroke:#0c202b;stroke-width:3}
+.semantic-packet.is-retry .semantic-packet-core{fill:#f7d695;stroke:#d6a05a}.semantic-packet.is-retry .semantic-packet-halo{fill:#f2c57a}
+.semantic-packet.is-failure .semantic-packet-core{fill:#ffc2c5;stroke:#db7f89}.semantic-packet.is-failure .semantic-packet-halo{fill:#e87885}
+.semantic-packet.is-settled{animation:semantic-settle .95s ease-out forwards}
+.semantic-node.is-signalled .semantic-bg{fill:#1d4650;stroke:#a6dfcc;stroke-width:2.4}
+.semantic-node.is-signalled .semantic-led{fill:#d5ffee;opacity:1}
+.semantic-node.is-retry .semantic-bg{stroke:#dfb876;fill:#463b32}.semantic-node.is-retry .semantic-led{fill:#f8d692}
+.semantic-node.is-failed .semantic-bg{stroke:#e89098;fill:#493139}.semantic-node.is-failed .semantic-led{fill:#ffc3c2}
+.semantic-node.is-complete .semantic-bg{stroke:#a6e9b2;fill:#214a3d}.semantic-node.is-complete .semantic-led{fill:#c6ffd2}
+@keyframes semantic-settle{0%{opacity:1}70%{opacity:1}100%{opacity:0}}
+@media (max-width:1160px){.zoom-live{display:none}}
+@media (prefers-reduced-motion:reduce){.semantic-packet.is-settled{animation:none}}
+
+/* Keep the system-layer particle hidden while viewing an alternative perspective. */
+#architecture[data-view="overview"] #packet-layer,
+#architecture[data-view="deep"] #packet-layer{opacity:0;visibility:hidden;pointer-events:none}
+#packet-layer{transition:opacity .24s ease,visibility .24s ease}
+.live-route{opacity:.055}.live-route-progress{stroke-width:2.7;opacity:.8}
+@media(prefers-reduced-motion:reduce){#packet-layer{transition:none!important}}
