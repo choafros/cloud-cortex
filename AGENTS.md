@@ -1,29 +1,17 @@
-# Codex guide — Cloud Cortex
+# Codex guidance — Cloud Cortex
 
 ## Goal
+Refine a single-page, dependency-free personal portfolio at afroz.co.uk. The animated cloud architecture is a **browser-only simulation**, not a real backend. Avoid claiming otherwise.
 
-A refined, static, single-page portfolio for afroz.co.uk. The interactive SVG is an **illustrative browser simulation**, not a live production cloud. Avoid representing simulated transactions or metrics as real.
+## Requirements
+- Keep static HTML, CSS, SVG and vanilla JavaScript. No framework, npm dependencies, analytics, API calls or credentials without approval.
+- Preserve the scroll-driven brain-to-architecture reveal and subtle background brain projection, including reduced-motion behaviour.
+- Keep **Send request** and **5× burst** inside the architecture panel (on-canvas for desktop, adjacent strip on mobile). The hero should direct visitors to the system instead of triggering transactions off-screen.
+- Preserve dynamic node states: idle, processing, retrying, complete, failed and standby for inactive API replicas. Node state accounting must handle overlapping requests so one request's timeout doesn't clear another's status. Do not reintroduce bottom-edge underlines or heavy idle animations.
+- Independently sample request outcomes: 60% direct 200; 10% recovered 200; 10% 403; 10% 429; 10% 503. Do not add an outcome picker. Burst mode scales 1→3→1 API replicas as load rises and settles.
+- Keep the event feed, counters, live textual trace, keyboard support and mobile layout readable, with no horizontal overflow.
+- Do not invent personal biography, education, employment or achievements.
+- Pan/zoom is deferred; prioritise readability and consider focused node inspection before adding free-form zoom.
 
-## Principles
-
-- No framework, build system, backend, analytics, network dependencies or secrets unless explicitly requested.
-- Keep the visual system restrained: dark navy, muted teal pathways, mint success; warm amber retry and soft red failure.
-- Preserve the brain-to-architecture scroll reveal **and the faint brain projection after reveal**, including reduced-motion fallback.
-- **Do not reintroduce node-bottom meters/underlines** or always-animated wires and decorative blinking across all boxes. Only active request routes should have strong movement.
-- All statuses must be sampled *per request*. Do not add a status selector. Current outcome weights: 60% direct 200, 10% retry-recovered 200, 10% 403, 10% 429, 10% 503; 70% eventual success, 30% eventual failure.
-- Burst traffic uses independently sampled results and temporarily scales API replicas from one to three. Keep counters, queue depth and event stream accurate, even for failures and retries.
-- Honour `prefers-reduced-motion`; support keyboard interaction and live textual feedback.
-- Layout the architecture intentionally for mobile; avoid horizontal overflow, clipped labels, or a tiny desktop diagram.
-- Don't invent personal history, companies, education or awards. Draft text remains placeholders until the owner provides the facts.
-
-## Repository arrangement
-
-The deployed public GitHub repository currently stores a self-contained `index.html` (inline CSS, JS and SVG). A separate modular source archive is maintained in the ChatGPT development handoff. If migrating the repository to modular files, commit every dependency together and confirm the root `index.html` still loads on Netlify/GitHub Pages without a build step.
-
-## Verify each iteration
-
-- Check syntax and browser console for JavaScript errors.
-- Test deterministic probability boundaries by temporarily overriding `Math.random` in browser tests: .12 → direct 200; .65 → recovered 200; .75 → 403; .85 → 429; .95 → 503.
-- Test five rapid requests for autoscale expansion and final scale-down, and ensure in-flight / queue return to zero.
-- Check 1440px and 390px layouts, reduced motion, scrolling reveal and absence of bottom node meters.
-- Keep documentation consistent with the current implementation.
+## Testing
+Use `node --check script.js` on modular source. Browser-check all five probability buckets, node transitions, concurrency, 5× scaling and cleanup at 1440px and 390px widths. Test both reduced-motion and ordinary animation. The deployed root currently contains a single inlined `index.html`; keep it deployable when making changes.
