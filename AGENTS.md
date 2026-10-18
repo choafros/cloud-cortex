@@ -17,5 +17,5 @@ A performant, polished one-page portfolio for `afroz.co.uk` with a locally simul
 ## Verify
 
 - `node --check script.js`
-- Run `python tests/v16_check.py` and `python tests/v16_zoom_smoke.py` with Playwright and Chromium available. Test 390px and 1440px viewports, scrollable inspector heading, all semantic zoom nodes, five-click scaling and recovery, and console errors.
+- Run `python tests/v16_check.py` and `python tests/v16_transactions.py` with Playwright and Chromium available. Test 390px and 1440px viewports, scrollable inspector heading, all semantic zoom nodes, five-click scaling and recovery, and console errors.
 - Check wheel zoom with the pointer over the diagram and natural page scroll elsewhere. Verify keyboard focus and reduced-motion mode.
