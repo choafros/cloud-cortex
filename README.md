@@ -1,26 +1,47 @@
 # Cloud Cortex · afroz.co.uk
 
-A lightweight, responsive one-page personal portfolio with a scroll-revealed **living cloud brain**. All packets, metrics, failures, load balancing and autoscaling are **browser-side simulations**, not connected production systems.
+A responsive, dependency-free personal website centred on the **living cloud brain**: an animated, inspectable cloud architecture. Every request, packet, status, node, retry and autoscale event is **simulated in the browser**—there is no connected backend or production cloud traffic.
 
-## Run
+## Run locally
 
-Open `index.html` directly or serve the root with `python3 -m http.server 8000`. No build step or API credentials are needed. The GitHub version is intentionally a self-contained `index.html` with embedded CSS, JavaScript and SVG assets for simple Netlify/GitHub Pages deployment. A modular source ZIP accompanies the development conversation.
+Open `index.html` directly, or from the repository root run `python3 -m http.server 8000`. The site uses ordinary HTML, CSS, SVG and JavaScript: no build pipeline, package manager, secrets or runtime API. Deploy the root to Netlify or GitHub Pages and connect the IONOS domain separately.
 
-## V1.4
+## V1.5: elastic architecture + node inspection
 
-- **Scroll reveal:** neural illustration fades away while a quiet projection remains behind the living infrastructure.
-- **Request controls inside the diagram:** `Send request` and `5× burst` overlay the top-left of the architecture canvas on desktop and appear in a dedicated strip above the nodes on mobile. The main hero now offers a jump link to the demo.
-- **Node lifecycle:** each component displays its current state using a restrained status colour and temporary subtitle: **processing**, **retrying**, **complete** or **failed**. Idle nodes show their usual description; inactive API replicas say **STANDBY**. Concurrent requests update each node independently.
-- **Expected outcomes:** 60% direct 200, 10% 200 after a retry, 10% 403 security rejection, 10% 429 rate limit and 10% 503 unavailable. Independent sampling means **70% success / 30% failure** *over many requests*, not necessarily in any short burst.
-- **Burst:** five rapid requests activate three API replicas; the system scales down again once traffic settles.
-- **Accessibility:** keyboard accessible buttons, textual trace, live metrics, reduced-motion support and a separately composed mobile topology.
+**Staged replica scaling**
 
-The network illustrates security, rate limits, traffic balancing, API gateway, authentication, API replicas, cache, message queue, background workers, retries, dead-letter queue, database shards, WebSocket delivery, telemetry and autoscaling. It is an illustrative architecture, not a reference implementation.
+- At idle, only `API / 01` exists and it is centred in the application column; API / 02 and API / 03 (and their wiring) are absent, not just dimmed.
+- When a rapid burst calls for a second replica, API / 01 smoothly moves to the top, making room for API / 02 to appear in the middle.
+- Under further load, API / 03 fades into the lower slot. The capacity counter follows the instances as they become available: **1 → 2 → 3**.
+- After traffic drains and a cooldown, API / 03 and API / 02 fade out sequentially, then API / 01 moves to the centre again.
+- On mobile, the same sequence reflows horizontally: middle → left, plus middle, then right. With `prefers-reduced-motion`, movement is immediate.
+- This is a conceptual demonstration of horizontal scaling, **not an actual Kubernetes/autoscaling system**.
 
-## Next design choice
+**Inspectable components**
 
-Full freeform pan/zoom has been deferred. A future **click a node to focus and inspect its dependencies** interaction is probably a better fit for a portfolio than unrestricted map navigation.
+- Select any of the 23 nodes by mouse, touch, Enter or Space to inspect its role, design considerations, failure modes, and direct connections.
+- Nodes are highlighted in the diagram while their details are open; the detail panel shows the node’s evolving idle / processing / retrying / complete / failed state.
+- On desktop the compact inspector overlays the diagram; on mobile it appears below the diagram. Close with × or Escape.
+- The two unprovisioned replica nodes are not focusable or clickable until they appear.
 
-## Before public launch
+**Existing behaviours preserved**
 
-Replace biography placeholders and the unverified `hello@afroz.co.uk` contact address with confirmed details.
+- Scroll-driven brain reveal, with a faint neural projection retained behind the topology.
+- `Send request` and `5× burst` controls inside the system visualisation.
+- Independently sampled outcomes: 60% direct 200; 10% retry-recovered 200; 10% 403; 10% 429; 10% 503. That is **70% eventual success, 30% failure across many requests**, with no status picker.
+- Node status feedback, packet trails, retry / dead-letter paths, queue depth, counters, event stream, and accessibility/reduced-motion support.
+
+The diagram covers WAF, rate limiting, load balancing, API gateway, identity checks, stateless APIs, Redis, a queue, workers, backoff, DLQ, sharded databases, WebSocket, metrics and autoscaling. It intentionally simplifies many operational details. Not all nodes participate in every request.
+
+## Repo files
+
+- `index.html` — page and inspector markup
+- `styles.css` — responsive look, scaling appearance, brain projection and panels
+- `script.js` — node map, animated transaction routes, weighted outcomes, scaling state machine and node inspector content
+- `assets/brain.svg`, `assets/favicon.svg` — original artwork
+- `tests/v15_check.py` — browser smoke test (Playwright + Chromium needed locally)
+- `AGENTS.md` — Codex development guidance
+
+## Before public portfolio launch
+
+The personal journey sections and `hello@afroz.co.uk` are placeholders. Replace them with approved factual information. Do not claim that the illustrated system or transaction statistics run on real cloud infrastructure.

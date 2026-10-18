@@ -1,4 +1,4 @@
-/* Cloud Cortex V1.2 — deterministic, browser-only system story. No network calls. */
+/* Cloud Cortex V1.5 — independently sampled outcomes, browser-only simulation. No network calls. */
 (() => {
   'use strict';
   const NS = 'http://www.w3.org/2000/svg';
@@ -50,6 +50,33 @@
     metrics:['Telemetry','TRACES','Observe stages, errors and retries'],
     autoscale:['Autoscaler','CAPACITY','Add API replicas for simulated burst load']
   };
+  // Concise, technically grounded notes for each concept. This is a teaching demo,
+  // not a claim that these components actually run in this static website.
+  const architectureNotes = {
+    client:['ENTRY POINT','The visitor begins a transaction; a backend has to decide what to trust and what to do.','Use request IDs, idempotency keys and tight timeouts so repeat clicks do not silently duplicate writes.','Slow clients and interrupted connections need safe cancellation and retry semantics.'],
+    waf:['SECURITY / EDGE','Filters malicious or abnormal traffic before it reaches the application.','Combine managed rules with tuned exceptions, bot signals and request-size limits. Avoid blocking legitimate customers.','False positives require audit trails and safe override procedures.'],
+    rate:['SECURITY / CAPACITY','Controls how often a client can call an API.','Use token-bucket limits, distributed counters and fair quotas across IPs, tokens and tenants.','Return 429 with a useful Retry-After value; counters should fail safely during outages.'],
+    lb:['TRAFFIC / ROUTING','Spreads incoming traffic across healthy application instances.','Balance algorithms, health probes, connection draining and session affinity need deliberate trade-offs.','A failed replica should be removed quickly without dropping healthy in-flight requests.'],
+    gateway:['API PLATFORM','Acts as a policy and routing boundary for backend APIs.','Handle versioning, request validation, auth propagation, timeouts and stable error contracts.','Misconfiguration can impact every service; release routes gradually and measure errors.'],
+    auth:['IDENTITY / TRUST','Decides who is calling and whether the operation is permitted.','Validate token signatures and claims; check fine-grained authorization, not just login state.','Expired tokens, compromised credentials and identity-provider outages need explicit handling.'],
+    apiA:['COMPUTE / REPLICA','A stateless backend instance executes business logic and hands off slow work.','Keep handlers idempotent; bound concurrency; externalize session state for horizontal scaling.','Unhealthy pods must drain; repeated writes must not duplicate work.'],
+    apiB:['COMPUTE / SCALE-OUT','An extra instance appears when traffic passes the scaling threshold.','Provisioning needs warm-up checks, service discovery and routing once readiness passes.','Cold starts and dependency bottlenecks can erase expected scaling gains.'],
+    apiC:['COMPUTE / ELASTICITY','A third instance absorbs a further burst of concurrent requests.','Scale from useful signals such as concurrency and latency, with cooldowns to avoid flapping.','More replicas cannot fix a saturated database or an unhealthy downstream queue.'],
+    cache:['DATA / CACHE','A fast in-memory path reduces repeated expensive operations.','Pick TTLs, eviction policy and key structure carefully; plan cache misses and invalidation.','Avoid stampedes when a hot key expires; keep correctness independent of the cache.'],
+    queue:['MESSAGING / BACKPRESSURE','Buffers asynchronous work so spikes do not overwhelm downstream services.','Choose delivery guarantees, visibility timeouts, ordering scope and idempotent consumers.','Watch queue age, retry storms and poison messages—not only queue length.'],
+    worker:['COMPUTE / ASYNC','Processes buffered jobs and performs durable writes.','Bound consumer concurrency, checkpoint safely, and design jobs to run more than once.','A crash between commit and acknowledgement can redeliver a job.'],
+    retry:['RESILIENCE / BACKOFF','Retries temporary errors without amplifying an outage.','Use bounded exponential backoff, jitter, error classification and a retry budget.','Never blindly retry non-idempotent writes or permanent validation failures.'],
+    dlq:['RESILIENCE / ISOLATION','Keeps repeatedly failing messages available for review.','Preserve failure context, alert operators and provide safe redrive tooling after a fix.','A growing DLQ is an operational incident, not a substitute for solving the root cause.'],
+    shardA:['DATA / PARTITION 01','One logical partition of a sharded data store.','Shard-key choice impacts routing, hotspots, data locality and cross-shard queries.','Plan for rebalancing, partial shard outages and consistency during migration.'],
+    shardB:['DATA / PARTITION 02','A second data partition shares write demand with other shards.','Use deterministic routing and observability per shard rather than averages only.','Skewed keys can create hot partitions while others appear idle.'],
+    shardC:['DATA / PARTITION 03','A third partition illustrates independent ownership of a key range.','Design key mapping, safe data movement and read-after-write expectations.','Cross-shard transactions and resharding remain costly engineering problems.'],
+    ws:['REALTIME / DELIVERY','Pushes an asynchronous completion event to the connected client.','Manage authentication, reconnects, fan-out, ordering, heartbeats and missed-event replay.','Clients disconnect; durable business events should not depend on socket delivery.'],
+    success:['RESULT / SUCCESS','The request completed successfully in the simulation.','A 200 response should reflect a clearly defined contract; long-running work may need 202 first.','Do not report success before the required durable operation has actually completed.'],
+    blocked:['RESULT / CLIENT ERROR','A security or quota rule rejected this transaction.','Differentiate access-denied 403 and quota-exceeded 429 with stable error payloads.','Log enough for investigation without leaking sensitive security logic.'],
+    failed:['RESULT / SERVICE ERROR','The job exhausted its simulated retry budget.','Separate transient from permanent failures and trace the request across its retry history.','Surface partial failures honestly and offer recovery or reprocessing paths.'],
+    metrics:['OBSERVABILITY','Connects request IDs, timing, errors and service events into a trace.','Use trace propagation, cardinality limits and latency/error dashboards tied to user experience.','Missing spans and noisy alerts hide the critical failure during an incident.'],
+    autoscale:['CONTROL PLANE','Changes replica capacity as load rises and later subsides.','Consider desired/ready replicas, startup delay, HPA thresholds, cooldown and capacity limits.','Scaling too slowly hurts latency; scaling too eagerly causes churn and cost.']
+  };
   const primaryLinks=[
     ['client','waf'],['waf','rate'],['waf','blocked'],['rate','blocked'],['rate','lb'],
     ['lb','gateway'],['gateway','auth'],['auth','blocked'],
@@ -77,12 +104,45 @@
     }}
   };
   const metrics={sent:$('metric-sent'),completed:$('metric-completed'),failed:$('metric-failed'),flight:$('metric-flight'),queue:$('metric-queue'),replicas:$('metric-replicas'),result:$('metric-result'),retried:$('metric-retried')};
-  const state={nextId:0,completed:0,failed:0,retried:0,inFlight:0,queueDepth:0,replicas:1,
-    recentClicks:[],scaleHoldUntil:0,nodes:new Map(),paths:new Map(),activeWires:new Map(),mobile:mobileMedia.matches,resizePending:false};
+  const state={nextId:0,completed:0,failed:0,retried:0,inFlight:0,queueDepth:0,replicas:1,desiredReplicas:1,apiAPosition:null,scaleTransitioning:false,selectedNode:null,
+    recentClicks:[],scaleHoldUntil:0,nodes:new Map(),nodeStates:new Map(),paths:new Map(),activeWires:new Map(),mobile:mobileMedia.matches,resizePending:false};
   let scaleResetTimeout;
   function el(tag,attrs={},text){const node=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attrs))node.setAttribute(k,String(v));if(text!==undefined)node.textContent=text;return node;}
   function clear(layer){layer.replaceChildren();}
-  function position(id){return layouts[state.mobile?'mobile':'desktop'].nodes[id];}
+  function position(id){
+    if(id==='apiA' && state.apiAPosition) return state.apiAPosition;
+    return layouts[state.mobile?'mobile':'desktop'].nodes[id];
+  }
+  function apiAHome(){return state.mobile?[260,308]:[873,368];}
+  function apiATop(){return state.mobile?[92,308]:[873,225];}
+  function syncApiWires(){
+    for(const [from,to] of primaryLinks){
+      if(from!=='apiA' && to!=='apiA')continue;
+      const path=state.paths.get(`${from}->${to}`);
+      if(path)path.setAttribute('d',pathData(from,to));
+    }
+  }
+  function updateApiAPosition(x,y){
+    state.apiAPosition=[x,y];
+    const node=state.nodes.get('apiA');
+    if(node)node.setAttribute('transform',`translate(${x} ${y})`);
+    syncApiWires();
+  }
+  function pause(ms){return new Promise(resolve=>setTimeout(resolve,reducedMotion.matches?0:ms));}
+  function movePrimary(to,duration=520){
+    const from=[...position('apiA')];
+    if(reducedMotion.matches){updateApiAPosition(...to);return Promise.resolve();}
+    return new Promise(resolve=>{
+      const start=performance.now();
+      function tick(now){
+        const t=Math.min(1,(now-start)/duration),ease=1-Math.pow(1-t,3);
+        updateApiAPosition(from[0]+(to[0]-from[0])*ease,from[1]+(to[1]-from[1])*ease);
+        if(t<1)requestAnimationFrame(tick);else resolve();
+      }
+      requestAnimationFrame(tick);
+    });
+  }
+
   function pathData(from,to){
     const [x1,y1]=position(from),[x2,y2]=position(to);
     const dx=x2-x1,dy=y2-y1;
@@ -98,36 +158,44 @@
       layers.brain.append(el('path',{d:`M ${base+i*7} ${mobile?245+i*22:245+i*12} C ${mobile?45+i*19:345+i*18} ${mobile?20+i*25:-40+i*22}, ${mobile?490-i*9:1220-i*18} ${mobile?40+i*29:10+i*18}, ${end-i*5} ${mobile?460+i*12:340+i*7} S ${mobile?44+i*10:870+i*24} ${mobile?950-i*6:760-i*8}, ${base+i*7} ${mobile?800-i*4:640-i*4}`,class:'brain-arc'}));
     }
     const zones=mobile?[['EDGE & ROUTING',14,30],['SERVICES & EVENTS',14,263],['RESILIENCE',14,503],['SHARDED DATA',14,625],['OBSERVABILITY',14,890]]:
-      [['01 / EDGE & TRUST',43,76],['02 / SERVICES',743,76],['03 / EVENTS & DATA',1050,76],['04 / RESILIENCE',1100,689]];
+      [['01 / EDGE & TRUST',43,129],['02 / SERVICES',743,76],['03 / EVENTS & DATA',1050,76],['04 / RESILIENCE',1100,689]];
     zones.forEach(([name,x,y])=>layers.zones.append(el('text',{x,y,class:'zone-label'},name)));
     if(!mobile)for(const x of [318,617,964,1290])layers.zones.append(el('line',{x1:x,y1:95,x2:x,y2:710,class:'zone-rule'}));
   }
   function renderDiagram(){
     if(state.inFlight>0){state.resizePending=true;return;}
     state.mobile=mobileMedia.matches;
+    state.apiAPosition=state.replicas>1?apiATop():apiAHome();
     svg.setAttribute('viewBox',layouts[state.mobile?'mobile':'desktop'].view);
     Object.values(layers).forEach(clear);
-    state.nodes.clear();state.paths.clear();state.activeWires.clear();
+    state.nodes.clear();state.nodeStates.clear();state.paths.clear();state.activeWires.clear();
     addBackdrop();
     for(const [index,[from,to]] of [...primaryLinks,...ambientLinks].entries()){
       const key=`${from}->${to}`;
-      const wire=el('path',{d:pathData(from,to),class:`wire${index%6===0?' wire-dash':''}${index>=primaryLinks.length?' wire-ambient':''}`,'data-edge':key});
+      const wire=el('path',{d:pathData(from,to),class:`wire${index>=primaryLinks.length?' wire-ambient':''}`,'data-edge':key});
       layers.wires.append(wire);state.paths.set(key,wire);
     }
     Object.entries(definitions).forEach(([id,[name,detail,explanation]],index)=>{
       const [x,y]=position(id);
-      const group=el('g',{class:`node${['apiB','apiC'].includes(id)?' is-dormant':''}${['metrics','autoscale'].includes(id)?' is-observer':''}`, 'data-node':id,transform:`translate(${x} ${y})`});
+      const group=el('g',{class:`node${['apiB','apiC'].includes(id)?' is-dormant':''}${['metrics','autoscale'].includes(id)?' is-observer':''}`, 'data-node':id,transform:`translate(${x} ${y})`,tabindex:['apiB','apiC'].includes(id)?'-1':'0',role:'button','aria-label':`Inspect ${name}`, 'aria-controls':'node-inspector','aria-pressed':'false'});
       group.append(el('title',{},`${name}: ${explanation}`));
       group.append(el('rect',{class:'node-halo',x:-52,y:-26,width:104,height:52,rx:12}));
       group.append(el('rect',{class:'node-bg',x:-57,y:-28,width:114,height:56,rx:9}));
-      group.append(el('rect',{class:'node-meter',x:-49,y:22,width:98,height:2,rx:1}));
-      group.append(el('circle',{class:'node-circle',cx:-44,cy:-16,r:2.7,style:`animation-delay:-${index%7*.35}s`}));
-      group.append(el('circle',{class:'node-spark',cx:44,cy:-16,r:2.1,style:`animation-delay:-${index%9*.43}s`}));
+      group.append(el('circle',{class:'node-circle',cx:-44,cy:-16,r:2.7,style:`--spark-phase:${index%7}`}));
+      group.append(el('circle',{class:'node-spark',cx:44,cy:-16,r:2.1,style:`--spark-phase:${index%9}`}));
       group.append(el('text',{class:'node-title',x:0,y:-2,'text-anchor':'middle'},name));
       group.append(el('text',{class:'node-detail',x:0,y:13,'text-anchor':'middle'},detail));
+      group.addEventListener('click',()=>openInspector(id));
+      group.addEventListener('keydown',event=>{
+        if(event.key==='Enter'||event.key===' '){event.preventDefault();openInspector(id);}
+      });
       layers.nodes.append(group);state.nodes.set(id,group);
+      state.nodeStates.set(id,{processing:0,retrying:0,failed:0,success:0});
+      refreshNode(id);
     });
     refreshReplicas();
+    refreshReplicaWires();
+    if(state.selectedNode)highlightSelection();
   }
   function pad(n){return String(n).padStart(2,'0');}
   function refreshMetrics(){
@@ -138,31 +206,162 @@
   }
   function setTrace(s){$('trace-message').textContent=s;}
   function setStatus(s){$('system-status').textContent=s;}
-  function refreshReplicas(){['apiA','apiB','apiC'].forEach((id,i)=>{const node=state.nodes.get(id);if(node){node.classList.toggle('is-dormant',i>=state.replicas);node.classList.toggle('is-scaled',i>0&&i<state.replicas);}});}
-  function activate(id,duration=500,type='active'){
-    const node=state.nodes.get(id);if(!node)return;
-    const cls=type==='error'?'is-error':type==='retry'?'is-retrying':type==='success'?'is-success':'is-active';
-    node.classList.add(cls);
-    clearTimeout(node.pulseTimeout);
-    node.pulseTimeout=setTimeout(()=>node.classList.remove('is-active','is-error','is-retrying','is-success'),duration);
+  const nodeStates = {processing:'PROCESSING',retrying:'RETRYING',failed:'FAILED',success:'COMPLETE'};
+  // Each request contributes an independent temporary state. Concurrent requests
+  // cannot clear each other's indicators before their own stage has finished.
+  function refreshNode(id){
+    const node=state.nodes.get(id),counts=state.nodeStates.get(id);
+    if(!node||!counts)return;
+    let live='idle';
+    if(counts.failed>0)live='failed';
+    else if(counts.retrying>0)live='retrying';
+    else if(counts.processing>0)live='processing';
+    else if(counts.success>0)live='success';
+    const standby=(id==='apiB'&&state.replicas<2)||(id==='apiC'&&state.replicas<3);
+    node.dataset.state=live;
+    node.classList.toggle('is-active',live==='processing');
+    node.classList.toggle('is-retrying',live==='retrying');
+    node.classList.toggle('is-error',live==='failed');
+    node.classList.toggle('is-success',live==='success');
+    node.classList.toggle('is-unmounted',standby);
+    node.classList.remove('is-dormant');
+    node.setAttribute('tabindex',standby?'-1':'0');
+    node.setAttribute('aria-hidden',standby?'true':'false');
+    node.classList.toggle('is-scaled',!standby&&(id==='apiB'||id==='apiC'));
+    const displayed=live==='idle'?(standby?'STANDBY':definitions[id][1]):nodeStates[live];
+    node.querySelector('.node-detail').textContent=displayed;
+    node.querySelector('title').textContent=`${definitions[id][0]} — ${standby?'not running':live}. ${definitions[id][2]}`;
+    if(state.selectedNode===id)updateInspectorState();
+  }
+  function refreshReplicas(){['apiA','apiB','apiC'].forEach(refreshNode);}
+  function refreshReplicaWires(){
+    for(const id of ['apiB','apiC']){
+      const visible=id==='apiB'?state.replicas>=2:state.replicas>=3;
+      for(const [from,to] of primaryLinks){
+        if(from!==id && to!==id)continue;
+        const edge=state.paths.get(`${from}->${to}`);
+        if(edge)edge.classList.toggle('is-unmounted',!visible);
+      }
+    }
+  }
+  function setReplicas(count){
+    if((count<3&&state.selectedNode==='apiC')||(count<2&&state.selectedNode==='apiB'))closeInspector();
+    state.replicas=count;
+    refreshReplicas();refreshReplicaWires();refreshMetrics();
+    activate('autoscale',720);
+    updateInspectorState();
+  }
+  async function reconcileReplicas(){
+    if(state.scaleTransitioning)return;
+    state.scaleTransitioning=true;
+    try{
+      while(state.replicas!==state.desiredReplicas){
+        if(state.replicas===1 && state.desiredReplicas>=2){
+          setStatus('SCALING / WARMING');
+          await movePrimary(apiATop());
+          // The first new replica arrives only after the main one has made room.
+          setReplicas(2);
+          await pause(360);
+          addEvent('scale','↗','API / 02 is ready — second replica online');
+        }else if(state.replicas===2 && state.desiredReplicas>=3){
+          setReplicas(3);
+          await pause(410);
+          addEvent('scale','↗','API / 03 joined — traffic spread across 3 replicas');
+        }else if(state.replicas===3 && state.desiredReplicas<=2){
+          setReplicas(2);
+          await pause(350);
+        }else if(state.replicas===2 && state.desiredReplicas===1){
+          setReplicas(1);
+          await pause(300);
+          await movePrimary(apiAHome());
+          addEvent('scale','↘','Traffic settled — API / 01 recentred, 1 replica active');
+        }
+      }
+      if(state.inFlight===0&&state.replicas===1)setStatus('SYSTEM IDLE');
+    }finally{
+      state.scaleTransitioning=false;
+      if(state.replicas!==state.desiredReplicas)void reconcileReplicas();
+    }
+  }
+  function requestReplicas(count){
+    state.desiredReplicas=count;
+    void reconcileReplicas();
+  }
+  function updateInspectorState(){
+    if(!state.selectedNode || $('node-inspector').hidden)return;
+    const id=state.selectedNode;
+    const node=state.nodes.get(id);
+    if(!node)return;
+    const standby=node.classList.contains('is-unmounted');
+    const live=standby?'STANDBY':(node.dataset.state||'idle').toUpperCase();
+    $('inspector-state').textContent=live;
+    $('inspector-state').dataset.state=live.toLowerCase();
+  }
+  function highlightSelection(){
+    for(const [id,group] of state.nodes){
+      group.classList.toggle('is-inspected',id===state.selectedNode);
+      group.setAttribute('aria-pressed',id===state.selectedNode?'true':'false');
+    }
+    for(const [key,wire] of state.paths){
+      const [from,to]=key.split('->');
+      wire.classList.toggle('is-inspected',Boolean(state.selectedNode && (from===state.selectedNode||to===state.selectedNode)));
+    }
+  }
+  function openInspector(id){
+    const node=state.nodes.get(id);
+    if(!node||node.classList.contains('is-unmounted'))return;
+    openCortex();
+    const [zone,summary,design,failure]=architectureNotes[id];
+    state.selectedNode=id;
+    $('inspector-zone').textContent=zone;
+    $('inspector-title').textContent=definitions[id][0];
+    $('inspector-summary').textContent=summary;
+    $('inspector-design').textContent=design;
+    $('inspector-failure').textContent=failure;
+    const neighbors=[...new Set(primaryLinks.concat(ambientLinks).filter(([from,to])=>from===id||to===id).map(([from,to])=>definitions[from===id?to:from][0]))];
+    $('inspector-connections').textContent=neighbors.join('  ·  ')||'Independent result';
+    $('node-inspector').hidden=false;
+    wrap.classList.add('inspector-visible');
+    updateInspectorState();highlightSelection();
+    if(state.mobile)$('node-inspector').scrollIntoView({behavior:reducedMotion.matches?'instant':'smooth',block:'nearest'});
+  }
+  function closeInspector(){
+    $('node-inspector').hidden=true;
+    wrap.classList.remove('inspector-visible');
+    const selected=state.selectedNode;
+    state.selectedNode=null;
+    highlightSelection();
+    if(selected&&state.nodes.get(selected)?.getAttribute('tabindex')==='0')state.nodes.get(selected).focus();
+  }
+  $('inspector-close').addEventListener('click',closeInspector);
+  addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('node-inspector').hidden)closeInspector();});
+
+  function activate(id,duration=760,type='active'){
+    const counts=state.nodeStates.get(id);if(!counts)return;
+    const key=type==='error'?'failed':type==='retry'?'retrying':type==='success'?'success':'processing';
+    counts[key]++;
+    refreshNode(id);
+    setTimeout(()=>{if(state.nodeStates.get(id)!==counts)return;counts[key]=Math.max(0,counts[key]-1);refreshNode(id);},duration);
   }
   function scaleUp(){
     state.scaleHoldUntil=Date.now()+2800;
-    if(state.replicas===3)return;
-    state.replicas=3;clearTimeout(scaleResetTimeout);refreshReplicas();refreshMetrics();
-    activate('autoscale',1500);setStatus('BURST / SCALING');
-    setTrace('Burst detected — autoscaler activated two more API replicas.');
-    addEvent('scale','↗','Autoscaler expanded the pool to 3 replicas');
+    const clicks=state.recentClicks.length;
+    const target=(clicks>=5||state.inFlight>=5)?3:2;
+    if(target<=state.desiredReplicas)return;
+    clearTimeout(scaleResetTimeout);
+    requestReplicas(target);
+    setStatus('BURST / SCALING');
+    setTrace(`Burst detected — ${target===2?'repositioning API / 01 to add a second replica':'warming the third API replica'}.`);
+    addEvent('scale','↗',`${target} replicas requested · autoscaling in progress`);
   }
   function maybeScaleDown(){
     clearTimeout(scaleResetTimeout);
     const delay=Math.max(0,state.scaleHoldUntil-Date.now());
     scaleResetTimeout=setTimeout(()=>{
       if(state.inFlight!==0){maybeScaleDown();return;}
-      state.replicas=1;refreshReplicas();refreshMetrics();setStatus('SYSTEM IDLE');
-      setTrace(`System settled · ${state.completed} succeeded · ${state.failed} failed · ready for more.`);
-      addEvent('scale','↘','Load settled — scaled down to 1 replica');
-    },delay+300);
+      requestReplicas(1);
+      setTrace(`Traffic settled · ${state.completed} succeeded · ${state.failed} failed · scaling down.`);
+    },delay+400);
   }
   function lightWire(key,on){const wire=state.paths.get(key);if(!wire)return;const count=(state.activeWires.get(key)||0)+(on?1:-1);if(count<=0){state.activeWires.delete(key);wire.classList.remove('is-active');}else{state.activeWires.set(key,count);wire.classList.add('is-active');}}
   function makePacket(id){
@@ -215,15 +414,25 @@
     setTrace(description+(status===503?' · Job placed in the dead-letter queue.':status===403?' · Blocked at the edge.':status===429?' · Rate limit enforced.':' · Trace complete.'));
     activate('metrics',620);refreshMetrics();
   }
-  async function runRequest(scenario='healthy'){
+  // Final outcomes: 70% successful (60% direct + 10% recovered), 30% unsuccessful.
+  // Independent draws are deliberate; a five-request burst will not always be 70/30.
+  function sampleScenario(roll=Math.random()) {
+    if(roll<.60)return 'healthy';
+    if(roll<.70)return 'recovered';
+    if(roll<.80)return 'blocked';
+    if(roll<.90)return 'throttled';
+    return 'outage';
+  }
+  async function runRequest(){
+    const scenario=sampleScenario();
     if(state.inFlight>=15){setTrace('Traffic guard: maximum 15 simulated requests in flight.');return;}
     openCortex();clearTimeout(scaleResetTimeout);
     const now=Date.now();state.recentClicks=state.recentClicks.filter(ts=>now-ts<1600);state.recentClicks.push(now);
     const id=++state.nextId;state.inFlight++;
-    if(state.recentClicks.length>=3||state.inFlight>=4)scaleUp();
+    if(state.recentClicks.length>=3||state.inFlight>=3)scaleUp();
     else if(state.replicas===1)setStatus('PROCESSING');
     refreshMetrics();
-    if(state.inFlight<3)setTrace(`#${pad(id)}  →  New ${scenario==='healthy'?'request':scenario} scenario entering the edge.`);
+    if(state.inFlight<3)setTrace(`#${pad(id)}  →  Request entering the edge · outcome sampled.`);
     const packet=makePacket(id),[x,y]=position('client');packet.setAttribute('transform',`translate(${x} ${y})`);
     activate('client');
     let queued=false;
@@ -233,11 +442,11 @@
     try{
       await go('client','waf');
       if(scenario==='blocked'){
-        markPacket(packet,'error');await go('waf','blocked',450,'error');result(id,403,'FORBIDDEN');return;
+        activate('waf',1700,'error');markPacket(packet,'error');await go('waf','blocked',450,'error');result(id,403,'FORBIDDEN');return;
       }
       await go('waf','rate');
       if(scenario==='throttled'){
-        markPacket(packet,'error');await go('rate','blocked',390,'error');result(id,429,'RATE LIMITED');return;
+        activate('rate',1700,'error');markPacket(packet,'error');await go('rate','blocked',390,'error');result(id,429,'RATE LIMITED');return;
       }
       await go('rate','lb');await go('lb','gateway');await go('gateway','auth');
       const replica=['apiA','apiB','apiC'][(id-1)%state.replicas];
@@ -252,7 +461,7 @@
           // One illustrative retry cycle, then isolation to a DLQ.
           await go('retry','worker',325,'retry');state.retried++;refreshMetrics();
           await go('worker','retry',300,'retry');
-          markPacket(packet,'error');await go('retry','dlq',440,'error');await go('dlq','failed',350,'error');
+          markPacket(packet,'error');activate('worker',1800,'error');await go('retry','dlq',440,'error');await go('dlq','failed',350,'error');
           result(id,503,'UNAVAILABLE');return;
         }
         await go('retry','worker',325,'retry');markPacket(packet,'healthy');
@@ -265,29 +474,16 @@
     }finally{
       if(queued)state.queueDepth=Math.max(0,state.queueDepth-1);
       packet.remove();state.inFlight=Math.max(0,state.inFlight-1);refreshMetrics();
-      if(state.inFlight===0){if(state.resizePending){state.resizePending=false;renderDiagram();}
-        if(state.replicas>1)maybeScaleDown();else setStatus('SYSTEM IDLE');}
+      if(state.inFlight===0){
+        if(state.resizePending){state.resizePending=false;renderDiagram();}
+        if(state.replicas>1||state.desiredReplicas>1||state.scaleTransitioning)maybeScaleDown();
+        else setStatus('SYSTEM IDLE');
+      }
     }
   }
-  function bringDiagramIntoView(){
-    const diagram=document.querySelector('.system-shell'),rect=diagram.getBoundingClientRect();
-    const visible=Math.max(0,Math.min(innerHeight,rect.bottom)-Math.max(0,rect.top));
-    const needsScroll=visible<Math.min(390,rect.height*.6);
-    if(needsScroll)diagram.scrollIntoView({behavior:reducedMotion.matches?'auto':'smooth',block:'start'});
-    return needsScroll&&!reducedMotion.matches?500:0;
-  }
-  let heroClicks=0,heroTimer;
-  $('send-request').addEventListener('click',()=>{
-    heroClicks++;clearTimeout(heroTimer);
-    heroTimer=setTimeout(()=>{
-      const count=heroClicks;heroClicks=0;const delay=bringDiagramIntoView();
-      for(let i=0;i<count;i++)setTimeout(()=>{void runRequest();},delay+i*115);
-    },240);
-  });
-  $('send-inline').addEventListener('click',()=>{void runRequest($('scenario-mode').value);});
+  $('send-inline').addEventListener('click',()=>{void runRequest();});
   $('send-burst').addEventListener('click',()=>{
-    const delay=bringDiagramIntoView();
-    ['healthy','healthy','recovered','outage','healthy'].forEach((scenario,i)=>setTimeout(()=>{void runRequest(scenario);},delay+i*145));
+    for(let i=0;i<5;i++)setTimeout(()=>{void runRequest();},i*130);
   });
   mobileMedia.addEventListener('change',renderDiagram);
   updateReveal();renderDiagram();refreshMetrics();
