@@ -1,30 +1,26 @@
 # Cloud Cortex · afroz.co.uk
 
-A bespoke, responsive one-page personal portfolio with a scroll-revealed **living cloud-brain** architecture. Its packets, routing, failures, metrics and autoscaling are **browser-side simulations**, not real infrastructure or production requests.
+A lightweight, responsive one-page personal portfolio with a scroll-revealed **living cloud brain**. All packets, metrics, failures, load balancing and autoscaling are **browser-side simulations**, not connected production systems.
 
-## Run and deploy
+## Run
 
-Open `index.html` in a browser or serve the repository root with `python3 -m http.server 8000`. No build system, frameworks, network calls, npm packages, API tokens or credentials are needed. Deploy the root to Netlify or GitHub Pages; configure the IONOS domain separately.
+Open `index.html` directly or serve the root with `python3 -m http.server 8000`. No build step or API credentials are needed. The GitHub version is intentionally a self-contained `index.html` with embedded CSS, JavaScript and SVG assets for simple Netlify/GitHub Pages deployment. A modular source ZIP accompanies the development conversation.
 
-The public repository currently serves a **self-contained `index.html`** containing the stylesheet, JavaScript and inline SVG assets. A modular source package (separate HTML/CSS/JS/assets and Playwright smoke tests) is also available from the ChatGPT development conversation.
+## V1.4
 
-## V1.3 — Less noise, more meaningful activity
+- **Scroll reveal:** neural illustration fades away while a quiet projection remains behind the living infrastructure.
+- **Request controls inside the diagram:** `Send request` and `5× burst` overlay the top-left of the architecture canvas on desktop and appear in a dedicated strip above the nodes on mobile. The main hero now offers a jump link to the demo.
+- **Node lifecycle:** each component displays its current state using a restrained status colour and temporary subtitle: **processing**, **retrying**, **complete** or **failed**. Idle nodes show their usual description; inactive API replicas say **STANDBY**. Concurrent requests update each node independently.
+- **Expected outcomes:** 60% direct 200, 10% 200 after a retry, 10% 403 security rejection, 10% 429 rate limit and 10% 503 unavailable. Independent sampling means **70% success / 30% failure** *over many requests*, not necessarily in any short burst.
+- **Burst:** five rapid requests activate three API replicas; the system scales down again once traffic settles.
+- **Accessibility:** keyboard accessible buttons, textual trace, live metrics, reduced-motion support and a separately composed mobile topology.
 
-- **Brain projection:** the scroll reveal dissolves the main brain graphic while retaining a quiet neural projection behind the cloud topology. Running a request reveals the diagram immediately.
-- **Clean nodes:** removed the small bars below every component (which appeared as underlines), and reduced ambient twinkling and wire movement. Request packets and activated paths take priority.
-- **Random outcomes:** every button press samples an outcome independently; there is no dropdown for choosing a status.
-  - 60%: first-try success, 200 OK.
-  - 10%: transient worker error, retry, then 200 OK.
-  - 10%: edge security rejection, 403.
-  - 10%: quota/rate-limit rejection, 429.
-  - 10%: worker failure after retries, dead-letter queue, 503.
-- **Expected totals:** 70% eventual success and 30% failure over many requests. A five-click burst is *not* guaranteed to contain a particular mixture.
-- **Scaling:** a burst activates three API replicas; once traffic settles, replicas return to one.
-- **Visibility:** event stream, recent result, in-flight count, queue depth, failures, retries and active replicas.
-- **Responsive and accessible:** intentional mobile layout, semantic buttons, textual trace and reduced-motion support.
+The network illustrates security, rate limits, traffic balancing, API gateway, authentication, API replicas, cache, message queue, background workers, retries, dead-letter queue, database shards, WebSocket delivery, telemetry and autoscaling. It is an illustrative architecture, not a reference implementation.
 
-The diagram includes WAF, rate limiter, load balancer, API gateway, identity, API replicas, Redis, messaging queue, worker pool, retry policy, dead-letter queue, three sharded databases, WebSocket, telemetry and autoscaler. Not every request visits every component.
+## Next design choice
 
-## Before publishing the personal site
+Full freeform pan/zoom has been deferred. A future **click a node to focus and inspect its dependencies** interaction is probably a better fit for a portfolio than unrestricted map navigation.
 
-Replace the placeholder biographical details and `hello@afroz.co.uk` with approved real information. Do not present the architecture as a real system or claim particular professional achievements without confirmation.
+## Before public launch
+
+Replace biography placeholders and the unverified `hello@afroz.co.uk` contact address with confirmed details.
