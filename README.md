@@ -1,47 +1,22 @@
 # Cloud Cortex · afroz.co.uk
 
-A responsive, dependency-free personal website centred on the **living cloud brain**: an animated, inspectable cloud architecture. Every request, packet, status, node, retry and autoscale event is **simulated in the browser**—there is no connected backend or production cloud traffic.
+A bespoke, responsive, static portfolio built around an interactive **living cloud-brain**. All requests, traffic, metric values, failures and autoscaling are **simulated locally in the browser**; no production infrastructure is involved.
 
-## Run locally
+## V1.6: Semantic zoom + fixed inspector controls
 
-Open `index.html` directly, or from the repository root run `python3 -m http.server 8000`. The site uses ordinary HTML, CSS, SVG and JavaScript: no build pipeline, package manager, secrets or runtime API. Deploy the root to Netlify or GitHub Pages and connect the IONOS domain separately.
+- **Three detail levels:** `− / +` controls and desktop mouse-wheel zoom inside the SVG switch between **Overview** (7 connected architectural domains), **System** (23 interactive nodes and live animated request packets), and **Deep dive** (15 internal engineering decisions such as idempotency, outbox, retries, circuit breakers, sharding and client replay). This is *semantic zoom* rather than simply enlarging text. The brain projection stays behind the architecture at every depth.
+- **Wheel behaviour:** only scrolling directly over the architecture changes depth. At the highest or lowest level the document scrolls normally. Zooming is disabled while a request is in flight to preserve the visible trace. Mobile uses large `− / +` controls and keeps vertical page scrolling natural.
+- **Inspector:** title, current state and the close button stay **fixed inside the card**; only the technical explanation scrolls. It applies to both the existing 23 nodes and the 7+15 semantic nodes. The inspector has keyboard support, Escape-to-close and an independent scroll surface.
+- **Transactions:** sending a new request from Overview or Deep dive returns to System so packet routes stay visible. Request outcomes remain independent draws: 60% immediate 200, 10% recovered 200, 10% blocked 403, 10% limited 429, and 10% unavailable 503; 70% success / 30% error in expectation over many requests.
+- **Elastic API nodes:** load grows from 1 → 2 → 3 instances, with the first box moving upward, later replicas fading in, and reverse scaling after cooldown.
+- **Accessible defaults:** static assets; no frameworks or build process; reduced-motion rules; meaningful aria labels; keyboard-operable depth buttons and nodes; mobile-specific diagram compositions.
 
-## V1.5: elastic architecture + node inspection
+## Running
 
-**Staged replica scaling**
+Open `index.html` or serve the directory with `python3 -m http.server 8000`. Hosting on Netlify or GitHub Pages requires only serving this repository's root. Domain DNS at IONOS can be configured after the personal copy is finalised.
 
-- At idle, only `API / 01` exists and it is centred in the application column; API / 02 and API / 03 (and their wiring) are absent, not just dimmed.
-- When a rapid burst calls for a second replica, API / 01 smoothly moves to the top, making room for API / 02 to appear in the middle.
-- Under further load, API / 03 fades into the lower slot. The capacity counter follows the instances as they become available: **1 → 2 → 3**.
-- After traffic drains and a cooldown, API / 03 and API / 02 fade out sequentially, then API / 01 moves to the centre again.
-- On mobile, the same sequence reflows horizontally: middle → left, plus middle, then right. With `prefers-reduced-motion`, movement is immediate.
-- This is a conceptual demonstration of horizontal scaling, **not an actual Kubernetes/autoscaling system**.
+Files: `index.html`, `styles.css`, `script.js`, `assets/brain.svg`, `assets/favicon.svg`, and `tests/v16_check.py` / `tests/v16_zoom_smoke.py`. To run browser smoke tests, install Playwright with Chromium and run the tests from the repository root.
 
-**Inspectable components**
+## Before launch
 
-- Select any of the 23 nodes by mouse, touch, Enter or Space to inspect its role, design considerations, failure modes, and direct connections.
-- Nodes are highlighted in the diagram while their details are open; the detail panel shows the node’s evolving idle / processing / retrying / complete / failed state.
-- On desktop the compact inspector overlays the diagram; on mobile it appears below the diagram. Close with × or Escape.
-- The two unprovisioned replica nodes are not focusable or clickable until they appear.
-
-**Existing behaviours preserved**
-
-- Scroll-driven brain reveal, with a faint neural projection retained behind the topology.
-- `Send request` and `5× burst` controls inside the system visualisation.
-- Independently sampled outcomes: 60% direct 200; 10% retry-recovered 200; 10% 403; 10% 429; 10% 503. That is **70% eventual success, 30% failure across many requests**, with no status picker.
-- Node status feedback, packet trails, retry / dead-letter paths, queue depth, counters, event stream, and accessibility/reduced-motion support.
-
-The diagram covers WAF, rate limiting, load balancing, API gateway, identity checks, stateless APIs, Redis, a queue, workers, backoff, DLQ, sharded databases, WebSocket, metrics and autoscaling. It intentionally simplifies many operational details. Not all nodes participate in every request.
-
-## Repo files
-
-- `index.html` — page and inspector markup
-- `styles.css` — responsive look, scaling appearance, brain projection and panels
-- `script.js` — node map, animated transaction routes, weighted outcomes, scaling state machine and node inspector content
-- `assets/brain.svg`, `assets/favicon.svg` — original artwork
-- `tests/v15_check.py` — browser smoke test (Playwright + Chromium needed locally)
-- `AGENTS.md` — Codex development guidance
-
-## Before public portfolio launch
-
-The personal journey sections and `hello@afroz.co.uk` are placeholders. Replace them with approved factual information. Do not claim that the illustrated system or transaction statistics run on real cloud infrastructure.
+The biographical sections and `hello@afroz.co.uk` are still placeholders. Replace them with verified personal details and a confirmed address before promoting the site. No analytics, tracking, external API calls or real cloud infrastructure are used.

@@ -194,3 +194,45 @@ body::before{right:0;width:min(1100px,100vw)}
 @media(prefers-reduced-motion:reduce){.node.is-scaled:not(.is-unmounted),.node-inspector{animation:none!important}}
 
 @media(max-width:760px){.diagram-wrap.inspector-visible .diagram-corner-label{display:none}}
+
+/* V1.6 — a fixed inspector heading with an independently scrollable explanation. */
+.node-inspector{display:flex;flex-direction:column;overflow:hidden;padding:0;overscroll-behavior:contain;}
+.inspector-fixed{flex:none;position:relative;z-index:2;padding:18px 20px 12px;background:#132d38;border-bottom:1px solid rgba(132,195,186,.22);box-shadow:0 7px 18px rgba(3,11,18,.2)}
+.inspector-title-row{margin:10px 0 0}
+.inspector-scroll{min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain;padding:15px 20px 18px;scrollbar-color:#416b70 #112937;scrollbar-width:thin;outline-offset:-2px;}
+.inspector-scroll:focus-visible{outline:2px solid #bdf0dc}
+.inspector-close{flex:none}
+/* Semantic zoom: two completely distinct abstraction levels around the existing trace. */
+.cortex-zoom{position:absolute;z-index:6;top:17px;right:23px;display:flex;align-items:center;gap:6px;padding:6px 7px;border:1px solid rgba(137,194,189,.34);border-radius:8px;background:rgba(10,27,39,.95);backdrop-filter:blur(8px);box-shadow:0 8px 22px rgba(0,0,0,.2)}
+.zoom-heading{margin:0 6px;color:#87aca9;font:700 8px ui-monospace,monospace;letter-spacing:.12em;white-space:nowrap}
+.zoom-step{background:rgba(64,133,127,.14);border:1px solid #4d7977;color:#b8ebdc;border-radius:5px;width:31px;height:31px;font-size:20px;line-height:1;display:grid;place-items:center}
+.zoom-step:hover:not(:disabled){background:#25565a}.zoom-step:disabled{opacity:.28;cursor:not-allowed}
+.zoom-current{font:700 9px ui-monospace,monospace;min-width:69px;color:#c1f2df;text-align:center;white-space:nowrap}
+.zoom-hint{font:8px ui-monospace,monospace;letter-spacing:.08em;color:#658d92;white-space:nowrap;margin-left:6px}
+#overview-layer,#deep-layer{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .32s ease,visibility .32s ease}
+#architecture[data-view="overview"] #overview-layer,#architecture[data-view="deep"] #deep-layer{opacity:1;visibility:visible;pointer-events:auto}
+#architecture[data-view="overview"] #node-layer,#architecture[data-view="overview"] #wire-layer,#architecture[data-view="overview"] #zone-labels,
+#architecture[data-view="deep"] #node-layer,#architecture[data-view="deep"] #wire-layer,#architecture[data-view="deep"] #zone-labels{opacity:0;visibility:hidden;pointer-events:none}
+#node-layer,#wire-layer,#zone-labels{transition:opacity .3s ease,visibility .3s ease}
+.semantic-wire{fill:none;stroke:#72a99f;stroke-width:2;opacity:.38;stroke-dasharray:5 9;pointer-events:none}
+.semantic-node{cursor:pointer;outline:none;transition:filter .2s ease}
+.semantic-bg{fill:#152e3b;stroke:#578b89;stroke-width:1.5}
+.semantic-node:hover .semantic-bg,.semantic-node:focus-visible .semantic-bg,.semantic-node.is-inspected .semantic-bg{stroke:#c1f5e0;stroke-width:2.6;fill:#1e4049}
+.semantic-title{font:600 16px ui-sans-serif,system-ui;fill:#d8ede9}
+.semantic-subtitle{font:700 9px ui-monospace,monospace;fill:#85bcb5;letter-spacing:.12em}
+.semantic-led{fill:#9bd8bc;opacity:.83}
+@media(max-width:1140px){.zoom-hint{display:none}}
+@media(max-width:760px){
+  .cortex-zoom{position:relative;top:auto;right:auto;left:auto;z-index:7;margin:0;padding:11px 13px;border:0;border-bottom:1px solid rgba(83,124,126,.22);border-radius:0;box-shadow:none;justify-content:center;gap:11px;background:rgba(9,24,35,.93)}
+  .zoom-heading{font-size:8px}.zoom-step{width:37px;height:34px}.zoom-current{min-width:74px}
+  .node-inspector{max-height:min(60vh,460px);padding:0;margin:12px 12px 20px}
+  .inspector-fixed{padding:14px 16px 12px}.inspector-scroll{padding:14px 16px 18px}
+  .semantic-title{font-size:17px}.semantic-subtitle{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){#overview-layer,#deep-layer,#node-layer,#wire-layer,#zone-labels{transition:none!important}}
+/* Constrain the card so even shorter explanations have a real scroll surface. */
+.node-inspector{max-height:min(390px,calc(100% - 110px))}
+@media(max-width:760px){.node-inspector{max-height:min(55vh,370px)}}
+.diagram-wrap[data-zoom="overview"] .diagram-corner-label,
+.diagram-wrap[data-zoom="deep"] .diagram-corner-label{opacity:0}
+@media(max-width:760px){.semantic-title{font-size:15px}}

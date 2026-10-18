@@ -1,26 +1,21 @@
-# Codex development notes — Cloud Cortex
+# Codex notes — Cloud Cortex
 
-## Purpose
+## Intent
 
-Build an elegant one-page personal portfolio and a playful **browser-only simulation** of backend/cloud infrastructure. Never represent browser-simulated packets, failures, counters or scaling as live production traffic.
+A performant, polished one-page portfolio for `afroz.co.uk` with a locally simulated infrastructure. **Never claim the browser animation drives real cloud services.** Keep HTML/CSS/SVG/vanilla JavaScript without dependencies, bundlers or secrets unless the owner approves a bigger project.
 
-## Technology
+## V1.6 contracts
 
-Plain HTML, CSS, SVG and vanilla JS. Static root deployment, no bundler, packages, APIs, analytics or secrets unless the user asks. Work from the modular `index.html`, `styles.css`, `script.js` and `assets/` files; do not revert to an enormous inline HTML file.
+- Preserve the faint brain projection behind the infrastructure, the initial scroll-to-reveal, the on-canvas Send request + 5× burst controls, and the 1 → 2 → 3 → 1 API autoscaling choreography.
+- Three semantic zoom levels: `overview`, `system`, `deep`. Clicking `− / +` changes one level; wheel over the SVG changes one level with a debounce and allows normal page scroll at limits. Overview represents 7 domains; System has 23 real simulation nodes; Deep dive has 15 detailed design boxes. Use accessible keyboard-operated controls, and do not make page scrolling difficult on mobile.
+- Semantic layers are illustrative design diagrams. When a request begins, switch to System so the existing packet animation is always visible. Do not leave hidden SVG elements tabbable. If a zoom change would interrupt active transactions, defer/disallow it with visible feedback.
+- The inspector's title, state and close button **must remain visible** while the long explanation scrolls in `.inspector-scroll`. Both desktop and mobile should have internally scrollable cards; the header should not move. Opening a different node resets the scroll position. Close via button or Escape; restore focus when practical.
+- Preserve 70% expected success (60% direct and 10% after retry) and 30% failure (10% 403, 10% 429, 10% 503) independently sampled per request; do not add a user-operated error selector.
+- Keep node states and overlapping request accounting accurate. Avoid underlined node meters or excessive idle animations. Honor `prefers-reduced-motion` and avoid horizontal page overflow.
+- Do not invent biography, credentials, employers, education or awards. Replace placeholders only when approved by the owner.
 
-## V1.5 behaviours to preserve
-
-- Retain the scroll reveal with a faint brain projection behind the network; honour `prefers-reduced-motion` and keyboard operation.
-- Control buttons live *inside the architecture panel*. Keep the layout responsive, free of clipped/underlined boxes and horizontal page scrolling.
-- **Staged scaling:** 1 idle API / 01 in the centre; burst→move API / 01 top→show API / 02 middle; higher load→show API / 03 bottom. On mobile, position API A left, API B middle, API C right. Hide unused replicas **and their links** completely. Scale down C→B→recentre A. Preserve readable state for concurrent requests and cooldown stability.
-- **Inspector:** every node must have substantive and technically accurate explanation, design complexity, resilience/failure notes and direct connections. Keep SVG nodes keyboard-selectable with Enter/Space, close on Escape or ×. Unprovisioned replicas must not be tabbable. Show live state in the inspector when its selected node changes.
-- Independently random outcomes: 60% direct success (200), 10% successful retry (200), 10% edge block (403), 10% throttle (429), 10% exhausted worker retries (503). Total eventual success expectation 70%; no dropdown. Do not guarantee percentages per short burst.
-- Preserve metrics, events, in-flight/queue cleanup and node state precedence for overlapping requests.
-- Do not invent education, employers, awards or career milestones; current biographical copy is draft.
-
-## Verification
+## Verify
 
 - `node --check script.js`
-- `python tests/v15_check.py` where Playwright and Chromium are available.
-- Test desktop and 390px mobile, ordinary animation and reduced motion, pointer and keyboard inspection, 1→2→3→1 replica choreography and 70/30 outcome buckets.
-- Verify the default root index loads directly on GitHub Pages or Netlify without build dependencies.
+- Run `python tests/v16_check.py` and `python tests/v16_zoom_smoke.py` with Playwright and Chromium available. Test 390px and 1440px viewports, scrollable inspector heading, all semantic zoom nodes, five-click scaling and recovery, and console errors.
+- Check wheel zoom with the pointer over the diagram and natural page scroll elsewhere. Verify keyboard focus and reduced-motion mode.

@@ -77,6 +77,48 @@
     metrics:['OBSERVABILITY','Connects request IDs, timing, errors and service events into a trace.','Use trace propagation, cardinality limits and latency/error dashboards tied to user experience.','Missing spans and noisy alerts hide the critical failure during an incident.'],
     autoscale:['CONTROL PLANE','Changes replica capacity as load rises and later subsides.','Consider desired/ready replicas, startup delay, HPA thresholds, cooldown and capacity limits.','Scaling too slowly hurts latency; scaling too eagerly causes churn and cost.']
   };
+  // Semantic zoom deliberately changes architectural detail rather than merely
+  // enlarging SVG labels. These teaching nodes are not live simulated services.
+  const semanticViews={
+    overview:{
+      title:'OVERVIEW', nodes:{
+        edge:['Edge & trust','WAF · QUOTAS','Protect the perimeter and enforce client trust boundaries.','Inspect malicious traffic, define rate-limit strategies and reject requests safely before application work.','False positives, coordinated attacks and overloaded counters must not compromise legitimate traffic.'],
+        routing:['Traffic & API','BALANCING · GATEWAY','Direct requests to healthy services and enforce API contracts.','Health checks, draining, policy enforcement, identity propagation and predictable timeout budgets all shape reliability.','Misrouted requests or cascading policy failures affect every downstream service.'],
+        compute:['Application','REPLICAS · CACHE','Stateless API replicas handle the interactive request.','Horizontal scaling works best with idempotent handlers, independent sessions, a good shard key and bounded dependency calls.','Autoscaling cannot fix a shared dependency bottleneck or bad cache invalidation.'],
+        events:['Async processing','QUEUE · WORKERS','Separate incoming traffic from durable background processing.','Queues absorb bursts; consumers manage ordering, delivery guarantees, retries and poisoned messages.','Unbounded queue growth and retry storms can take down otherwise healthy systems.'],
+        data:['Data & delivery','SHARDS · WEBSOCKET','Persist results across partitions and notify clients asynchronously.','Shard-key distribution, consistency expectations, connection management and event sequencing matter at scale.','Partial writes or disconnections demand idempotent reconciliation and replay.'],
+        resilience:['Resilience','RETRY · DLQ','Failure is a first-class execution path, not an afterthought.','Budgets, exponential backoff, circuit breakers and dead-letter operations turn outages into bounded incidents.','Retries can amplify an outage without jitter and effective backpressure.'],
+        observe:['Operations','TRACING · SCALING','Measure latency, errors and capacity to guide decisions.','Trace propagation, service-level objectives, controlled scale-up and clear alerts reduce diagnosis time.','Noisy alerts and scaling flaps hide the real fault and waste resources.']
+      },
+      desktop:{edge:[205,240],routing:[455,240],compute:[705,240],events:[960,240],data:[1250,240],resilience:[560,485],observe:[990,485]},
+      mobile:{edge:[136,168],routing:[386,168],compute:[136,350],events:[386,350],data:[136,532],resilience:[386,532],observe:[258,735]},
+      links:[['edge','routing'],['routing','compute'],['compute','events'],['events','data'],['compute','resilience'],['resilience','events'],['events','observe']]
+    },
+    deep:{
+      title:'DEEP DIVE',nodes:{
+        ingress:['Request context','TRACE ID','Each request carries information used across many services.','Correlation IDs, deadlines, tenant identity, cancellation and idempotency tokens travel together.','Context loss makes failures hard to trace and can break authorization guarantees.'],
+        policy:['Policy engine','VALIDATE','Validate input and authorize the operation before mutation.','Apply schema checks, scoped authorization and consistent error contracts at trust boundaries.','A bypassed validation step can corrupt data or leak resources.'],
+        mutex:['Idempotency','DEDUPE','Protect writes against repeated retries and repeated clicks.','Atomic claim-and-store, stable dedupe keys, TTLs and replayed results all require care.','A race between duplicate requests can cause double charging or duplicated jobs.'],
+        api:['API handler','STATELESS','A service replica implements the business operation.','Use bounded fan-out, per-hop timeouts, concurrency limits and safe dependency isolation.','Thread exhaustion or a slow downstream call can saturate every replica.'],
+        cachePolicy:['Cache strategy','TTL · STAMPEDE','Understand where to cache and when to invalidate.','TTL selection, negative caching, eviction and stampede control influence both speed and correctness.','A stale cache entry can return inconsistent results or overwhelm a recovering database.'],
+        outbox:['Outbox','ATOMIC EVENT','Write a business change and an event together.','A transactional outbox bridges a database commit and eventually reliable publication.','Publishing outside the commit boundary risks lost or duplicated events.'],
+        broker:['Message broker','ACK · DELIVERY','Transport work asynchronously with explicit delivery guarantees.','Visibility timeout, ack semantics, partitions and deduplication govern reliable consumption.','Poison events and consumer lag need bounded reprocessing.'],
+        consumer:['Worker concurrency','BACKPRESSURE','Regulate consumer throughput based on downstream capacity.','Bound consumer concurrency, tune prefetch and use idempotent handlers for at-least-once delivery.','A consumer fleet can overload the storage layer if scaled independently.'],
+        breaker:['Circuit breaker','BULKHEAD','Stop repeated requests to an unhealthy dependency.','Open, half-open and closed states balance recovery probes with fault containment.','Incorrect thresholds cause cascading failures or block healthy traffic.'],
+        budget:['Retry budget','JITTER','Retries are limited and staggered instead of immediate loops.','Use classified errors, exponential backoff with jitter and maximum attempts.','Aggressive retries lengthen outages and magnify traffic.'],
+        isolate:['Dead-letter policy','QUARANTINE','Isolate failed jobs so healthy work can continue.','Store failure context, alarm on trends and offer safe controlled replays.','An ignored DLQ becomes a permanent data-loss queue.'],
+        router:['Shard router','PARTITION KEY','Map each record to the correct data shard.','Choose stable keys, hash distribution, routing metadata and rebalancing plans.','Hot keys and stale routing maps can stall writes and affect consistency.'],
+        shard1:['Partition A','CONSISTENCY','Owns one range of the data set.','Per-shard pools, indexes and replication lag are tracked individually.','Partial outages require explicit response contracts and recovery procedures.'],
+        shard2:['Partition B','HOTSPOT WATCH','Shares the write workload, independently monitored.','Skew analysis and online rebalancing avoid one shard carrying most of the load.','Cross-shard queries introduce latency and coordination overhead.'],
+        push:['Client notification','RECONNECT','Notify clients when asynchronous work has completed.','Out-of-order events, resume tokens, authentication and missed-event replay deserve design attention.','A WebSocket disconnect must never undo a successful database commit.']
+      },
+      desktop:{ingress:[130,135],policy:[355,135],mutex:[580,135],api:[810,135],cachePolicy:[1045,135],outbox:[1310,135],
+        broker:[1310,335],consumer:[1070,335],breaker:[815,335],budget:[580,335],isolate:[345,335],router:[580,580],shard1:[875,580],shard2:[1140,580],push:[1370,580]},
+      mobile:{ingress:[137,100],policy:[383,100],mutex:[137,225],api:[383,225],cachePolicy:[137,350],outbox:[383,350],broker:[137,475],consumer:[383,475],breaker:[137,600],budget:[383,600],isolate:[137,725],router:[383,725],shard1:[137,850],shard2:[383,850],push:[258,965]},
+      links:[['ingress','policy'],['policy','mutex'],['mutex','api'],['api','cachePolicy'],['cachePolicy','outbox'],['outbox','broker'],['broker','consumer'],['consumer','breaker'],['breaker','budget'],['budget','isolate'],['consumer','router'],['router','shard1'],['router','shard2'],['shard1','push'],['shard2','push']]
+    }
+  };
+  const zoomLevels=['overview','system','deep'];
   const primaryLinks=[
     ['client','waf'],['waf','rate'],['waf','blocked'],['rate','blocked'],['rate','lb'],
     ['lb','gateway'],['gateway','auth'],['auth','blocked'],
@@ -105,7 +147,7 @@
   };
   const metrics={sent:$('metric-sent'),completed:$('metric-completed'),failed:$('metric-failed'),flight:$('metric-flight'),queue:$('metric-queue'),replicas:$('metric-replicas'),result:$('metric-result'),retried:$('metric-retried')};
   const state={nextId:0,completed:0,failed:0,retried:0,inFlight:0,queueDepth:0,replicas:1,desiredReplicas:1,apiAPosition:null,scaleTransitioning:false,selectedNode:null,
-    recentClicks:[],scaleHoldUntil:0,nodes:new Map(),nodeStates:new Map(),paths:new Map(),activeWires:new Map(),mobile:mobileMedia.matches,resizePending:false};
+    recentClicks:[],scaleHoldUntil:0,nodes:new Map(),nodeStates:new Map(),paths:new Map(),activeWires:new Map(),mobile:mobileMedia.matches,resizePending:false,zoomLevel:1,semanticNodes:new Map()};
   let scaleResetTimeout;
   function el(tag,attrs={},text){const node=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attrs))node.setAttribute(k,String(v));if(text!==undefined)node.textContent=text;return node;}
   function clear(layer){layer.replaceChildren();}
@@ -193,10 +235,72 @@
       state.nodeStates.set(id,{processing:0,retrying:0,failed:0,success:0});
       refreshNode(id);
     });
+    renderSemanticViews();
     refreshReplicas();
     refreshReplicaWires();
     if(state.selectedNode)highlightSelection();
   }
+  function renderSemanticViews(){
+    state.semanticNodes.clear();
+    for(const level of ['overview','deep']){
+      const layer=$(level+'-layer');layer.replaceChildren();
+      const view=semanticViews[level],coords=view[state.mobile?'mobile':'desktop'];
+      for(const [from,to] of view.links){
+        const a=coords[from],b=coords[to];
+        const d=`M ${a[0]} ${a[1]} Q ${(a[0]+b[0])/2} ${(a[1]+b[1])/2-20} ${b[0]} ${b[1]}`;
+        layer.append(el('path',{d,class:'semantic-wire','data-semantic-edge':`${from}->${to}`}));
+      }
+      for(const [id,data] of Object.entries(view.nodes)){
+        const [x,y]=coords[id],key=`${level}:${id}`;
+        const group=el('g',{'data-semantic-id':key,transform:`translate(${x} ${y})`,class:'semantic-node',tabindex:'0',role:'button','aria-label':`Explore ${data[0]}`,'aria-controls':'node-inspector','aria-pressed':'false'});
+        group.append(el('rect',{x:-88,y:-37,width:176,height:74,rx:12,class:'semantic-bg'}));
+        group.append(el('circle',{cx:-70,cy:-19,r:3,class:'semantic-led'}));
+        group.append(el('text',{x:0,y:-1,'text-anchor':'middle',class:'semantic-title'},data[0]));
+        group.append(el('text',{x:0,y:18,'text-anchor':'middle',class:'semantic-subtitle'},data[1]));
+        group.addEventListener('click',()=>openInspector(key));
+        group.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();openInspector(key);}});
+        layer.append(group);state.semanticNodes.set(key,group);
+      }
+    }
+    updateZoomUI();
+  }
+  function updateZoomUI(){
+    const level=zoomLevels[state.zoomLevel];
+    svg.dataset.view=level;
+    wrap.dataset.zoom=level;
+    $('zoom-current').textContent=level==='overview'?'OVERVIEW':level==='deep'?'DEEP DIVE':'SYSTEM';
+    $('zoom-out').disabled=state.zoomLevel===0;
+    $('zoom-in').disabled=state.zoomLevel===2;
+    for(const name of ['overview','deep']) $(name+'-layer').setAttribute('aria-hidden',level===name?'false':'true');
+    layers.nodes.setAttribute('aria-hidden',level==='system'?'false':'true');
+    // Hide inactive layouts from keyboard, including unmounted replicas.
+    for(const [id,node] of state.nodes)node.setAttribute('tabindex',level==='system'&&!node.classList.contains('is-unmounted')?'0':'-1');
+    for(const [id,node] of state.semanticNodes)node.setAttribute('tabindex',id.startsWith(level+':')?'0':'-1');
+  }
+  function setZoomLevel(value){
+    const target=Math.max(0,Math.min(2,value));
+    if(target===state.zoomLevel)return;
+    if(state.inFlight>0){setTrace('Wait for the current trace to finish before changing the architecture depth.');return;}
+    if(!$('node-inspector').hidden)closeInspector({focus:false});
+    state.zoomLevel=target;openCortex();updateZoomUI();
+    const info={overview:'Overview · seven connected architectural domains.',system:'System · 23 interactive infrastructure nodes.',deep:'Deep dive · 15 internal engineering decisions.'};
+    setTrace(info[zoomLevels[target]]);
+  }
+  $('zoom-out').addEventListener('click',()=>setZoomLevel(state.zoomLevel-1));
+  $('zoom-in').addEventListener('click',()=>setZoomLevel(state.zoomLevel+1));
+  let lastWheelAt=0;
+  svg.addEventListener('wheel',event=>{
+    // Only the diagram itself captures wheel input. The document is free to scroll
+    // beyond the first or last level. Inspector scrolling is always independent.
+    if(Math.abs(event.deltaY)<5||state.inFlight>0)return;
+    const direction=event.deltaY>0?1:-1;
+    const target=Math.min(2,Math.max(0,state.zoomLevel+direction));
+    if(target===state.zoomLevel)return;
+    event.preventDefault();
+    const now=performance.now();
+    if(now-lastWheelAt<560)return;
+    lastWheelAt=now;setZoomLevel(target);
+  },{passive:false});
   function pad(n){return String(n).padStart(2,'0');}
   function refreshMetrics(){
     metrics.sent.textContent=pad(state.nextId);metrics.completed.textContent=pad(state.completed);
@@ -225,7 +329,7 @@
     node.classList.toggle('is-success',live==='success');
     node.classList.toggle('is-unmounted',standby);
     node.classList.remove('is-dormant');
-    node.setAttribute('tabindex',standby?'-1':'0');
+    node.setAttribute('tabindex',standby||state.zoomLevel!==1?'-1':'0');
     node.setAttribute('aria-hidden',standby?'true':'false');
     node.classList.toggle('is-scaled',!standby&&(id==='apiB'||id==='apiC'));
     const displayed=live==='idle'?(standby?'STANDBY':definitions[id][1]):nodeStates[live];
@@ -290,6 +394,10 @@
   function updateInspectorState(){
     if(!state.selectedNode || $('node-inspector').hidden)return;
     const id=state.selectedNode;
+    if(id.includes(':')){
+      $('inspector-state').textContent=id.startsWith('overview:')?'OVERVIEW':'DESIGN';
+      $('inspector-state').dataset.state='idle';return;
+    }
     const node=state.nodes.get(id);
     if(!node)return;
     const standby=node.classList.contains('is-unmounted');
@@ -302,36 +410,54 @@
       group.classList.toggle('is-inspected',id===state.selectedNode);
       group.setAttribute('aria-pressed',id===state.selectedNode?'true':'false');
     }
+    for(const [key,node] of state.semanticNodes){
+      node.classList.toggle('is-inspected',key===state.selectedNode);
+      node.setAttribute('aria-pressed',key===state.selectedNode?'true':'false');
+    }
     for(const [key,wire] of state.paths){
       const [from,to]=key.split('->');
       wire.classList.toggle('is-inspected',Boolean(state.selectedNode && (from===state.selectedNode||to===state.selectedNode)));
     }
   }
   function openInspector(id){
-    const node=state.nodes.get(id);
+    const isSemantic=id.includes(':');
+    const node=isSemantic?state.semanticNodes.get(id):state.nodes.get(id);
     if(!node||node.classList.contains('is-unmounted'))return;
-    openCortex();
-    const [zone,summary,design,failure]=architectureNotes[id];
-    state.selectedNode=id;
+    openCortex();state.selectedNode=id;
+    let zone,summary,design,failure,connections,title;
+    if(isSemantic){
+      const [level,key]=id.split(':');
+      const view=semanticViews[level],info=view.nodes[key];
+      title=info[0];zone=level==='overview'?'ARCHITECTURAL DOMAIN':'INSIDE THE SYSTEM';
+      [,,summary,design,failure]=info;
+      connections=[...new Set(view.links.filter(([from,to])=>from===key||to===key).map(([from,to])=>view.nodes[from===key?to:from][0]))].join('  ·  ');
+    }else{
+      [zone,summary,design,failure]=architectureNotes[id];title=definitions[id][0];
+      connections=[...new Set(primaryLinks.concat(ambientLinks).filter(([from,to])=>from===id||to===id).map(([from,to])=>definitions[from===id?to:from][0]))].join('  ·  ');
+    }
     $('inspector-zone').textContent=zone;
-    $('inspector-title').textContent=definitions[id][0];
+    $('inspector-title').textContent=title;
     $('inspector-summary').textContent=summary;
     $('inspector-design').textContent=design;
     $('inspector-failure').textContent=failure;
-    const neighbors=[...new Set(primaryLinks.concat(ambientLinks).filter(([from,to])=>from===id||to===id).map(([from,to])=>definitions[from===id?to:from][0]))];
-    $('inspector-connections').textContent=neighbors.join('  ·  ')||'Independent result';
+    $('inspector-connections-label').textContent='DIRECT CONNECTIONS';
+    $('inspector-connections').textContent=connections||'Independent result';
     $('node-inspector').hidden=false;
+    $('inspector-scroll').scrollTop=0;
     wrap.classList.add('inspector-visible');
     updateInspectorState();highlightSelection();
     if(state.mobile)$('node-inspector').scrollIntoView({behavior:reducedMotion.matches?'instant':'smooth',block:'nearest'});
   }
-  function closeInspector(){
+  function closeInspector({focus=true}={}){
     $('node-inspector').hidden=true;
     wrap.classList.remove('inspector-visible');
     const selected=state.selectedNode;
     state.selectedNode=null;
     highlightSelection();
-    if(selected&&state.nodes.get(selected)?.getAttribute('tabindex')==='0')state.nodes.get(selected).focus();
+    if(focus&&selected){
+      const node=state.nodes.get(selected)||state.semanticNodes.get(selected);
+      if(node?.getAttribute('tabindex')==='0')node.focus();
+    }
   }
   $('inspector-close').addEventListener('click',closeInspector);
   addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('node-inspector').hidden)closeInspector();});
@@ -426,6 +552,7 @@
   async function runRequest(){
     const scenario=sampleScenario();
     if(state.inFlight>=15){setTrace('Traffic guard: maximum 15 simulated requests in flight.');return;}
+    if(state.zoomLevel!==1)setZoomLevel(1);
     openCortex();clearTimeout(scaleResetTimeout);
     const now=Date.now();state.recentClicks=state.recentClicks.filter(ts=>now-ts<1600);state.recentClicks.push(now);
     const id=++state.nextId;state.inFlight++;
